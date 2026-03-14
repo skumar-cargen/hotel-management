@@ -7,7 +7,7 @@
     </x-slot:breadcrumb>
 
     <x-slot:styles>
-        <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-bs5.min.css" rel="stylesheet">
+        <link href="{{ asset('vendor/summernote/css/summernote-bs5.min.css') }}" rel="stylesheet">
     </x-slot:styles>
 
     <style>
@@ -455,7 +455,7 @@
     </form>
 
     <x-slot:scripts>
-        <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-bs5.min.js"></script>
+        <script src="{{ asset('vendor/summernote/js/summernote-bs5.min.js') }}"></script>
         <script>
             $(function() {
                 // Init Summernote on all editors

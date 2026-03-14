@@ -10,7 +10,7 @@
 
     <x-slot:styles>
         <link href="{{ asset('assets/css/flatpickr.min.css') }}" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-bs5.min.css" rel="stylesheet">
+        <link href="{{ asset('vendor/summernote/css/summernote-bs5.min.css') }}" rel="stylesheet">
         <style>
             .flatpickr-calendar {
                 border: none !important; border-radius: 0.85rem !important;
@@ -436,7 +436,7 @@
 
     <x-slot:scripts>
         <script src="{{ asset('assets/js/flatpickr.min.js') }}"></script>
-        <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-bs5.min.js"></script>
+        <script src="{{ asset('vendor/summernote/js/summernote-bs5.min.js') }}"></script>
         <script>
             $(function() {
                 // Summernote config

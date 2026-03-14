@@ -7,14 +7,14 @@
     <title>@yield('title', 'Admin') - {{ config('app.name') }}</title>
 
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- Boxicons -->
-    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="{{ asset('vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
     <!-- Select2 -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
+    <link href="{{ asset('vendor/select2/css/select2.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('vendor/select2-bootstrap-5-theme/css/select2-bootstrap-5-theme.min.css') }}" rel="stylesheet">
     <!-- DataTables -->
-    <link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="{{ asset('vendor/datatables/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet">
 
     <style>
         :root {
@@ -295,12 +295,12 @@
     <div class="sidebar-overlay d-lg-none" onclick="document.querySelector('.admin-sidebar').classList.remove('show')" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1035;"></div>
 
     <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('vendor/select2/js/select2.min.js') }}"></script>
+    <script src="{{ asset('vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('vendor/datatables/js/dataTables.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset('vendor/chartjs/chart.umd.min.js') }}"></script>
     @vite(['resources/js/app.js'])
 
     <script>
