@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Route;
 | Redirect root to admin
 |--------------------------------------------------------------------------
 */
-Route::redirect('/', '/admin/dashboard');
+Route::get('/', function () {
+    return redirect()->route('admin.dashboard');
+});
 
 /*
 |--------------------------------------------------------------------------
