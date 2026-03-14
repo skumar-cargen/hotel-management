@@ -1,0 +1,92 @@
+<?php
+
+return [
+    // Navigation
+    'home' => 'Home',
+    'search' => 'Search',
+    'hotels' => 'Hotels',
+    'locations' => 'Locations',
+    'book_now' => 'Book Now',
+    'view_details' => 'View Details',
+    'back_to_home' => 'Back to Home',
+
+    // Search
+    'search_hotels' => 'Search Hotels',
+    'check_in' => 'Check-in',
+    'check_out' => 'Check-out',
+    'guests' => 'Guests',
+    'adults' => 'Adults',
+    'children' => 'Children',
+    'rooms' => 'Rooms',
+    'location' => 'Location',
+    'all_locations' => 'All Locations',
+
+    // Filters
+    'filters' => 'Filters',
+    'star_rating' => 'Star Rating',
+    'price_range' => 'Price Range',
+    'min_price' => 'Min Price',
+    'max_price' => 'Max Price',
+    'amenities' => 'Amenities',
+    'beach_access' => 'Beach Access',
+    'family_friendly' => 'Family Friendly',
+    'apply' => 'Apply',
+    'clear_filters' => 'Clear Filters',
+
+    // Hotel Detail
+    'about' => 'About',
+    'room_types' => 'Room Types',
+    'reviews' => 'Reviews',
+    'faq' => 'FAQ',
+    'per_night' => '/night',
+    'from' => 'From',
+    'bed_type' => 'Bed Type',
+    'max_guests' => 'Max Guests',
+    'room_size' => 'Room Size',
+    'check_in_time' => 'Check-in Time',
+    'check_out_time' => 'Check-out Time',
+    'cancellation_policy' => 'Cancellation Policy',
+
+    // Booking
+    'book_your_stay' => 'Book Your Stay',
+    'first_name' => 'First Name',
+    'last_name' => 'Last Name',
+    'email' => 'Email',
+    'phone' => 'Phone',
+    'nationality' => 'Nationality',
+    'special_requests' => 'Special Requests',
+    'continue_to_summary' => 'Continue to Summary',
+    'booking_summary' => 'Booking Summary',
+    'reference' => 'Reference',
+    'nights' => 'Nights',
+    'price_per_night' => 'Price per night',
+    'subtotal' => 'Subtotal',
+    'vat' => 'VAT',
+    'tourism_fee' => 'Tourism Fee',
+    'total' => 'Total',
+    'proceed_to_payment' => 'Proceed to Payment',
+    'booking_confirmed' => 'Booking Confirmed!',
+    'confirmation_email_sent' => 'A confirmation email has been sent to',
+    'total_paid' => 'Total Paid',
+
+    // General
+    'no_results' => 'No results found.',
+    'loading' => 'Loading...',
+    'currency' => 'Currency',
+    'language' => 'Language',
+    'english' => 'English',
+    'arabic' => 'Arabic',
+    'contact_us' => 'Contact Us',
+    'about_us' => 'About Us',
+    'privacy_policy' => 'Privacy Policy',
+    'terms_conditions' => 'Terms & Conditions',
+    'all_rights_reserved' => 'All rights reserved.',
+
+    // Homepage
+    'find_perfect_stay' => 'Find Your Perfect Stay in Dubai',
+    'hero_subtitle' => 'Discover the best hotels and apartments across Dubai\'s most sought-after locations.',
+    'featured_locations' => 'Featured Locations',
+    'featured_hotels' => 'Featured Hotels',
+    'explore_all' => 'Explore All',
+    'hotels_count' => ':count Hotels',
+];

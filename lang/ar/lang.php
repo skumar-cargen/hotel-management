@@ -1,0 +1,92 @@
+<?php
+
+return [
+    // Navigation
+    'home' => 'الرئيسية',
+    'search' => 'بحث',
+    'hotels' => 'فنادق',
+    'locations' => 'المواقع',
+    'book_now' => 'احجز الآن',
+    'view_details' => 'عرض التفاصيل',
+    'back_to_home' => 'العودة إلى الرئيسية',
+
+    // Search
+    'search_hotels' => 'البحث عن فنادق',
+    'check_in' => 'تسجيل الوصول',
+    'check_out' => 'تسجيل المغادرة',
+    'guests' => 'الضيوف',
+    'adults' => 'البالغين',
+    'children' => 'الأطفال',
+    'rooms' => 'الغرف',
+    'location' => 'الموقع',
+    'all_locations' => 'جميع المواقع',
+
+    // Filters
+    'filters' => 'التصفية',
+    'star_rating' => 'تصنيف النجوم',
+    'price_range' => 'نطاق السعر',
+    'min_price' => 'أقل سعر',
+    'max_price' => 'أعلى سعر',
+    'amenities' => 'المرافق',
+    'beach_access' => 'وصول للشاطئ',
+    'family_friendly' => 'مناسب للعائلات',
+    'apply' => 'تطبيق',
+    'clear_filters' => 'مسح التصفية',
+
+    // Hotel Detail
+    'about' => 'حول',
+    'room_types' => 'أنواع الغرف',
+    'reviews' => 'التقييمات',
+    'faq' => 'الأسئلة الشائعة',
+    'per_night' => '/ليلة',
+    'from' => 'من',
+    'bed_type' => 'نوع السرير',
+    'max_guests' => 'أقصى عدد ضيوف',
+    'room_size' => 'حجم الغرفة',
+    'check_in_time' => 'وقت تسجيل الوصول',
+    'check_out_time' => 'وقت تسجيل المغادرة',
+    'cancellation_policy' => 'سياسة الإلغاء',
+
+    // Booking
+    'book_your_stay' => 'احجز إقامتك',
+    'first_name' => 'الاسم الأول',
+    'last_name' => 'اسم العائلة',
+    'email' => 'البريد الإلكتروني',
+    'phone' => 'الهاتف',
+    'nationality' => 'الجنسية',
+    'special_requests' => 'طلبات خاصة',
+    'continue_to_summary' => 'متابعة إلى الملخص',
+    'booking_summary' => 'ملخص الحجز',
+    'reference' => 'المرجع',
+    'nights' => 'ليالي',
+    'price_per_night' => 'السعر لكل ليلة',
+    'subtotal' => 'المجموع الفرعي',
+    'vat' => 'ضريبة القيمة المضافة',
+    'tourism_fee' => 'رسوم السياحة',
+    'total' => 'الإجمالي',
+    'proceed_to_payment' => 'المتابعة إلى الدفع',
+    'booking_confirmed' => 'تم تأكيد الحجز!',
+    'confirmation_email_sent' => 'تم إرسال بريد إلكتروني للتأكيد إلى',
+    'total_paid' => 'إجمالي المدفوع',
+
+    // General
+    'no_results' => 'لم يتم العثور على نتائج.',
+    'loading' => 'جاري التحميل...',
+    'currency' => 'العملة',
+    'language' => 'اللغة',
+    'english' => 'الإنجليزية',
+    'arabic' => 'العربية',
+    'contact_us' => 'اتصل بنا',
+    'about_us' => 'من نحن',
+    'privacy_policy' => 'سياسة الخصوصية',
+    'terms_conditions' => 'الشروط والأحكام',
+    'all_rights_reserved' => 'جميع الحقوق محفوظة.',
+
+    // Homepage
+    'find_perfect_stay' => 'اعثر على إقامتك المثالية في دبي',
+    'hero_subtitle' => 'اكتشف أفضل الفنادق والشقق في أكثر مواقع دبي طلباً.',
+    'featured_locations' => 'المواقع المميزة',
+    'featured_hotels' => 'الفنادق المميزة',
+    'explore_all' => 'استكشف الكل',
+    'hotels_count' => ':count فنادق',
+];

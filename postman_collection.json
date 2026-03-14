@@ -1,0 +1,649 @@
+{
+	"info": {
+		"_postman_id": "dubai-apartments-api-v1",
+		"name": "Dubai Apartments API v1",
+		"description": "Complete REST API for Dubai Apartments React Frontend.\n\nRequired: Set `X-Domain` header with a valid domain slug (e.g., dubai-luxury-stays).\n\nNo authentication needed.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "domainSlug",
+			"value": "dubai-luxury-stays",
+			"type": "string"
+		},
+		{
+			"key": "bookingRef",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Domain",
+			"item": [
+				{
+					"name": "Get Domain Config",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Domain",
+								"value": "{{domainSlug}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/domain/config",
+							"host": ["{{baseUrl}}"],
+							"path": ["domain", "config"]
+						},
+						"description": "Returns domain configuration including theme (CSS variables, colors, fonts), SEO settings, and tracking IDs."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Hotels",
+			"item": [
+				{
+					"name": "List Hotels",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Domain",
+								"value": "{{domainSlug}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/hotels?per_page=12&sort=rating",
+							"host": ["{{baseUrl}}"],
+							"path": ["hotels"],
+							"query": [
+								{
+									"key": "per_page",
+									"value": "12",
+									"description": "Items per page (default: 12)"
+								},
+								{
+									"key": "sort",
+									"value": "rating",
+									"description": "Sort by: price_asc, price_desc, rating, name"
+								},
+								{
+									"key": "location",
+									"value": "",
+									"description": "Filter by location slug",
+									"disabled": true
+								},
+								{
+									"key": "star_rating",
+									"value": "",
+									"description": "Filter by star rating (1-5)",
+									"disabled": true
+								},
+								{
+									"key": "featured",
+									"value": "1",
+									"description": "Only featured hotels",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number",
+									"disabled": true
+								}
+							]
+						},
+						"description": "List all hotels for the domain with optional filters and sorting."
+					},
+					"response": []
+				},
+				{
+					"name": "Search Hotels",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Domain",
+								"value": "{{domainSlug}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/hotels/search?q=beach",
+							"host": ["{{baseUrl}}"],
+							"path": ["hotels", "search"],
+							"query": [
+								{
+									"key": "q",
+									"value": "beach",
+									"description": "Search query (min 2 chars) — searches name, address, description, location"
+								},
+								{
+									"key": "per_page",
+									"value": "12",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Search hotels by name, address, description, or location."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Hotel Detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Domain",
+								"value": "{{domainSlug}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/hotels/:slug",
+							"host": ["{{baseUrl}}"],
+							"path": ["hotels", ":slug"],
+							"variable": [
+								{
+									"key": "slug",
+									"value": "burj-al-arab",
+									"description": "Hotel slug"
+								}
+							]
+						},
+						"description": "Full hotel detail — images, amenities, room types with display prices, reviews summary, location, FAQ."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Hotel Reviews",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Domain",
+								"value": "{{domainSlug}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/hotels/:slug/reviews?per_page=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["hotels", ":slug", "reviews"],
+							"query": [
+								{
+									"key": "per_page",
+									"value": "10"
+								}
+							],
+							"variable": [
+								{
+									"key": "slug",
+									"value": "burj-al-arab",
+									"description": "Hotel slug"
+								}
+							]
+						},
+						"description": "Paginated approved reviews for a hotel."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Locations",
+			"item": [
+				{
+					"name": "List Locations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Domain",
+								"value": "{{domainSlug}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/locations",
+							"host": ["{{baseUrl}}"],
+							"path": ["locations"]
+						},
+						"description": "All active locations for the domain with hotel counts."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Location Detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Domain",
+								"value": "{{domainSlug}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/locations/:slug?per_page=12",
+							"host": ["{{baseUrl}}"],
+							"path": ["locations", ":slug"],
+							"query": [
+								{
+									"key": "per_page",
+									"value": "12"
+								}
+							],
+							"variable": [
+								{
+									"key": "slug",
+									"value": "downtown-dubai",
+									"description": "Location slug"
+								}
+							]
+						},
+						"description": "Location detail with paginated hotels."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Availability & Pricing",
+			"item": [
+				{
+					"name": "Check Availability",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Domain",
+								"value": "{{domainSlug}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/availability?room_type_id=1&check_in=2026-03-15&check_out=2026-03-18&num_rooms=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["availability"],
+							"query": [
+								{
+									"key": "room_type_id",
+									"value": "1",
+									"description": "Room type ID"
+								},
+								{
+									"key": "check_in",
+									"value": "2026-03-15",
+									"description": "Check-in date (YYYY-MM-DD)"
+								},
+								{
+									"key": "check_out",
+									"value": "2026-03-18",
+									"description": "Check-out date (YYYY-MM-DD)"
+								},
+								{
+									"key": "num_rooms",
+									"value": "1",
+									"description": "Number of rooms (1-10)"
+								}
+							]
+						},
+						"description": "Check room availability for a date range. Returns per-day availability."
+					},
+					"response": []
+				},
+				{
+					"name": "Calculate Price",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Domain",
+								"value": "{{domainSlug}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"room_type_id\": 1,\n    \"check_in\": \"2026-03-15\",\n    \"check_out\": \"2026-03-18\",\n    \"num_rooms\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pricing/calculate",
+							"host": ["{{baseUrl}}"],
+							"path": ["pricing", "calculate"]
+						},
+						"description": "Full price breakdown — base price, nightly rates, adjustments, VAT, tourism fee, total."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Booking Flow",
+			"item": [
+				{
+					"name": "1. Create Booking",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.success && jsonData.data.reference_number) {",
+									"    pm.collectionVariables.set('bookingRef', jsonData.data.reference_number);",
+									"    console.log('Booking ref saved: ' + jsonData.data.reference_number);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Domain",
+								"value": "{{domainSlug}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"hotel_id\": 1,\n    \"room_type_id\": 1,\n    \"check_in\": \"2026-03-15\",\n    \"check_out\": \"2026-03-18\",\n    \"num_rooms\": 1,\n    \"num_adults\": 2,\n    \"num_children\": 0,\n    \"guest_first_name\": \"Ahmed\",\n    \"guest_last_name\": \"Khan\",\n    \"guest_email\": \"ahmed@example.com\",\n    \"guest_phone\": \"+971501234567\",\n    \"guest_nationality\": \"UAE\",\n    \"special_requests\": \"Late check-in please\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings",
+							"host": ["{{baseUrl}}"],
+							"path": ["bookings"]
+						},
+						"description": "Create a new booking. Reference number is auto-saved to {{bookingRef}} variable."
+					},
+					"response": []
+				},
+				{
+					"name": "2. Get Booking Summary",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Domain",
+								"value": "{{domainSlug}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/{{bookingRef}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["bookings", "{{bookingRef}}"]
+						},
+						"description": "Get booking details by reference number."
+					},
+					"response": []
+				},
+				{
+					"name": "3. Initiate Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Domain",
+								"value": "{{domainSlug}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings/{{bookingRef}}/pay",
+							"host": ["{{baseUrl}}"],
+							"path": ["bookings", "{{bookingRef}}", "pay"]
+						},
+						"description": "Initiate payment for a pending booking. Returns redirect_url for payment gateway."
+					},
+					"response": []
+				},
+				{
+					"name": "4. Payment Callback (Simulate)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"order_id\": \"PASTE_ORDER_ID_HERE\",\n    \"status\": \"success\",\n    \"sandbox\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payments/callback",
+							"host": ["{{baseUrl}}"],
+							"path": ["payments", "callback"]
+						},
+						"description": "Simulate payment callback (sandbox mode). No X-Domain header needed.\n\nGet order_id from the redirect_url returned by 'Initiate Payment'."
+					},
+					"response": []
+				},
+				{
+					"name": "5. Booking Confirmation",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Domain",
+								"value": "{{domainSlug}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/{{bookingRef}}/confirmation",
+							"host": ["{{baseUrl}}"],
+							"path": ["bookings", "{{bookingRef}}", "confirmation"]
+						},
+						"description": "Full booking confirmation with payment details."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Pages",
+			"item": [
+				{
+					"name": "List Pages",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Domain",
+								"value": "{{domainSlug}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/pages",
+							"host": ["{{baseUrl}}"],
+							"path": ["pages"]
+						},
+						"description": "List all active CMS pages for the domain."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Page Detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Domain",
+								"value": "{{domainSlug}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/pages/:slug",
+							"host": ["{{baseUrl}}"],
+							"path": ["pages", ":slug"],
+							"variable": [
+								{
+									"key": "slug",
+									"value": "about-us",
+									"description": "Page slug"
+								}
+							]
+						},
+						"description": "Get a single CMS page by slug."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Amenities",
+			"item": [
+				{
+					"name": "List Amenities (Grouped)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Domain",
+								"value": "{{domainSlug}}"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/amenities",
+							"host": ["{{baseUrl}}"],
+							"path": ["amenities"]
+						},
+						"description": "All active amenities grouped by category."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Error Tests",
+			"item": [
+				{
+					"name": "Missing X-Domain Header → 400",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/hotels",
+							"host": ["{{baseUrl}}"],
+							"path": ["hotels"]
+						},
+						"description": "Test: calling without X-Domain header should return 400."
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid Domain Slug → 404",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Domain",
+								"value": "non-existent-domain"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/hotels",
+							"host": ["{{baseUrl}}"],
+							"path": ["hotels"]
+						},
+						"description": "Test: invalid domain slug should return 404."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

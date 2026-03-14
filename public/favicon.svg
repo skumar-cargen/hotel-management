@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#667eea"/>
+      <stop offset="100%" stop-color="#f093fb"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <!-- Building house icon (simplified bxs-building-house) -->
+  <g fill="#fff">
+    <!-- Main building -->
+    <rect x="14" y="22" width="20" height="28" rx="2"/>
+    <!-- Building windows -->
+    <rect x="18" y="26" width="5" height="4" rx="1" fill="#667eea" opacity="0.5"/>
+    <rect x="25" y="26" width="5" height="4" rx="1" fill="#667eea" opacity="0.5"/>
+    <rect x="18" y="33" width="5" height="4" rx="1" fill="#667eea" opacity="0.5"/>
+    <rect x="25" y="33" width="5" height="4" rx="1" fill="#667eea" opacity="0.5"/>
+    <!-- Door -->
+    <rect x="20" y="41" width="8" height="9" rx="1.5" fill="#667eea" opacity="0.5"/>
+    <!-- House (right side) -->
+    <polygon points="37,30 50,22 50,50 37,50" fill="#fff" opacity="0.9"/>
+    <!-- House roof -->
+    <polygon points="37,30 43.5,16 50,22" fill="#fff"/>
+    <!-- House window -->
+    <rect x="40" y="32" width="6" height="5" rx="1" fill="#667eea" opacity="0.5"/>
+    <!-- House door -->
+    <rect x="41" y="41" width="5" height="9" rx="1" fill="#667eea" opacity="0.5"/>
+  </g>
+</svg>
