@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Review extends Model
@@ -41,6 +42,11 @@ class Review extends Model
         return $this->belongsToMany(Domain::class, 'domain_testimonials')
             ->withPivot('sort_order')
             ->withTimestamps();
+    }
+
+    public function helpfuls(): HasMany
+    {
+        return $this->hasMany(ReviewHelpful::class);
     }
 
     public function scopeApproved($query)

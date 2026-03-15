@@ -14,7 +14,7 @@ class LocationController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = Location::query()->withCount('hotels');
+            $query = Location::query()->withCount('hotels')->latest();
 
             return DataTables::of($query)
                 ->addColumn('is_featured', function ($location) {

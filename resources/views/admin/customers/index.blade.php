@@ -89,7 +89,7 @@
                 ],
                 responsive: true,
                 pageLength: 25,
-                order: [[0, 'asc']]
+                order: []
             });
         });
         </script>

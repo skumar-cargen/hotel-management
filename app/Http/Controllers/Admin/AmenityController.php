@@ -13,7 +13,7 @@ class AmenityController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = Amenity::query();
+            $query = Amenity::query()->latest();
 
             return DataTables::of($query)
                 ->addColumn('icon_display', function ($amenity) {

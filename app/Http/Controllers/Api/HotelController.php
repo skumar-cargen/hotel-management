@@ -10,6 +10,7 @@ use App\Http\Resources\ReviewResource;
 use App\Models\Booking;
 use App\Models\Hotel;
 use App\Models\Review;
+use App\Models\ReviewHelpful;
 use App\Services\PricingService;
 use App\Traits\ApiResponses;
 use Illuminate\Http\Request;
@@ -36,6 +37,8 @@ class HotelController extends Controller
             ->when($request->filled('location'), fn ($q) => $q->whereHas('location', fn ($lq) => $lq->where('slug', $request->location)))
             ->when($request->filled('star_rating'), fn ($q) => $q->where('star_rating', $request->star_rating))
             ->when($request->boolean('featured'), fn ($q) => $q->featured())
+            ->when($request->boolean('has_deal'), fn ($q) => $q->whereHas('deals', fn ($dq) => $dq->active()->current()->whereHas('domains', fn ($ddq) => $ddq->where('domains.id', $domain->id))))
+            ->when($request->boolean('top_rated'), fn ($q) => $q->where('avg_rating', '>=', 4.5))
             ->when($request->filled('sort'), function ($q) use ($request) {
                 return match ($request->sort) {
                     'price_asc' => $q->orderBy('min_price', 'asc'),
@@ -143,10 +146,33 @@ class HotelController extends Controller
         }
 
         $reviews = $hotel->approvedReviews()
+            ->withCount('helpfuls')
+            ->with('helpfuls')
             ->latest()
             ->paginate($request->integer('per_page', 10));
 
         return $this->paginatedResponse(ReviewResource::collection($reviews));
+    }
+
+    public function toggleReviewHelpful(Request $request, int $reviewId)
+    {
+        $review = Review::approved()->findOrFail($reviewId);
+        $ip = $request->ip();
+
+        $existing = $review->helpfuls()->where('ip_address', $ip)->first();
+
+        if ($existing) {
+            $existing->delete();
+            $marked = false;
+        } else {
+            $review->helpfuls()->create(['ip_address' => $ip]);
+            $marked = true;
+        }
+
+        return $this->successResponse([
+            'is_helpful' => $marked,
+            'helpful_count' => $review->helpfuls()->count(),
+        ]);
     }
 
     public function submitReview(SubmitReviewRequest $request, string $slug)

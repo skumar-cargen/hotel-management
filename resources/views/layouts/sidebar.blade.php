@@ -121,12 +121,16 @@
             @endcan
         </div>
 
-        {{-- Inquiries --}}
+        {{-- Inquiries & Marketing --}}
         <div class="nav-section">
             <div class="nav-section-title">Inquiries</div>
             <a href="{{ route('admin.contact-inquiries.index') }}" class="nav-item {{ request()->routeIs('admin.contact-inquiries.*') ? 'active' : '' }}" data-tooltip="Contact Inquiries">
                 <div class="nav-icon"><i class='bx bx-envelope'></i></div>
                 <span class="nav-text">Contact Messages</span>
+            </a>
+            <a href="{{ route('admin.newsletter-subscribers.index') }}" class="nav-item {{ request()->routeIs('admin.newsletter-subscribers.*') ? 'active' : '' }}" data-tooltip="Newsletter Subscribers">
+                <div class="nav-icon"><i class='bx bx-mail-send'></i></div>
+                <span class="nav-text">Newsletter</span>
             </a>
         </div>
 

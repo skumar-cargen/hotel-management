@@ -12,7 +12,7 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = Customer::query()->withCount('bookings');
+            $query = Customer::query()->withCount('bookings')->latest();
 
             return DataTables::of($query)
                 ->addColumn('name', function ($customer) {

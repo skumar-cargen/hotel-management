@@ -12,7 +12,7 @@ class CareerController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = Career::query()->with('domains');
+            $query = Career::query()->with('domains')->latest();
 
             return DataTables::of($query)
                 ->addColumn('domain_list', function ($career) {

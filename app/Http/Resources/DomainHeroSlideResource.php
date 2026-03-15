@@ -11,6 +11,10 @@ class DomainHeroSlideResource extends JsonResource
     {
         return [
             'image' => asset('storage/'.$this->image_path),
+            'title' => $this->title,
+            'highlight' => $this->highlight,
+            'subtitle' => $this->subtitle,
+            'description' => $this->description,
         ];
     }
 }

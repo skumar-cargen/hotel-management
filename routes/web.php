@@ -83,6 +83,9 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     // Contact Inquiries
     Route::resource('contact-inquiries', Admin\ContactInquiryController::class)->only(['index', 'show', 'update']);
 
+    // Newsletter Subscribers
+    Route::resource('newsletter-subscribers', Admin\NewsletterSubscriberController::class)->only(['index', 'update', 'destroy']);
+
     // Customers
     Route::resource('customers', Admin\CustomerController::class)->only(['index', 'show', 'update']);
 

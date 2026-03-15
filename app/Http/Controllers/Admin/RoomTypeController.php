@@ -23,7 +23,7 @@ class RoomTypeController extends Controller
         $this->authorizeHotel($hotel);
 
         if ($request->ajax()) {
-            $query = $hotel->roomTypes();
+            $query = $hotel->roomTypes()->latest();
 
             return DataTables::of($query)
                 ->addColumn('price_formatted', function ($roomType) {

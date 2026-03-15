@@ -15,7 +15,7 @@ class DomainController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = Domain::query()->withCount('hotels');
+            $query = Domain::query()->withCount('hotels')->latest();
 
             return DataTables::of($query)
                 ->addColumn('status', function ($domain) {
@@ -183,6 +183,10 @@ class DomainController extends Controller
     {
         $request->validate([
             'image' => 'required|image|max:5120',
+            'title' => 'nullable|string|max:255',
+            'highlight' => 'nullable|string|max:255',
+            'subtitle' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:1000',
         ]);
 
         $path = $request->file('image')->store('domains/'.$domain->id.'/hero', 'public');
@@ -191,6 +195,10 @@ class DomainController extends Controller
 
         $slide = $domain->heroSlides()->create([
             'image_path' => $path,
+            'title' => $request->input('title'),
+            'highlight' => $request->input('highlight'),
+            'subtitle' => $request->input('subtitle'),
+            'description' => $request->input('description'),
             'sort_order' => $maxSort + 1,
         ]);
 
@@ -199,6 +207,10 @@ class DomainController extends Controller
             'slide' => [
                 'id' => $slide->id,
                 'url' => asset('storage/'.$slide->image_path),
+                'title' => $slide->title,
+                'highlight' => $slide->highlight,
+                'subtitle' => $slide->subtitle,
+                'description' => $slide->description,
                 'is_active' => $slide->is_active,
                 'sort_order' => $slide->sort_order,
             ],
@@ -209,6 +221,10 @@ class DomainController extends Controller
     {
         $validated = $request->validate([
             'is_active' => 'nullable|boolean',
+            'title' => 'nullable|string|max:255',
+            'highlight' => 'nullable|string|max:255',
+            'subtitle' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:1000',
         ]);
 
         $slide->update($validated);
@@ -217,6 +233,10 @@ class DomainController extends Controller
             'success' => true,
             'slide' => [
                 'id' => $slide->id,
+                'title' => $slide->title,
+                'highlight' => $slide->highlight,
+                'subtitle' => $slide->subtitle,
+                'description' => $slide->description,
                 'is_active' => $slide->is_active,
             ],
         ]);

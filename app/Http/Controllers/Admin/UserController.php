@@ -15,7 +15,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = User::query()->with(['roles', 'domains']);
+            $query = User::query()->with(['roles', 'domains'])->latest();
 
             return DataTables::of($query)
                 ->addColumn('role', function ($user) {

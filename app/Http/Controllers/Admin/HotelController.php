@@ -21,7 +21,7 @@ class HotelController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = Hotel::query()->with('location')->withCount(['roomTypes', 'reviews']);
+            $query = Hotel::query()->with('location')->withCount(['roomTypes', 'reviews'])->latest();
             $this->scopeHotelsForUser($query);
 
             return DataTables::of($query)
@@ -35,6 +35,11 @@ class HotelController extends Controller
                     }
 
                     return $stars;
+                })
+                ->addColumn('featured', function ($hotel) {
+                    return $hotel->is_featured
+                        ? '<span class="badge bg-primary"><i class="bx bxs-star me-1"></i>Featured</span>'
+                        : '<span class="badge bg-light text-muted">No</span>';
                 })
                 ->addColumn('status', function ($hotel) {
                     return $hotel->is_active
@@ -52,7 +57,7 @@ class HotelController extends Controller
                         </ul>
                     </div>';
                 })
-                ->rawColumns(['stars', 'status', 'action'])
+                ->rawColumns(['stars', 'featured', 'status', 'action'])
                 ->make(true);
         }
 

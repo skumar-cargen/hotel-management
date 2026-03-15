@@ -12,7 +12,7 @@ class DealController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = Deal::query()->with('domains');
+            $query = Deal::query()->with('domains')->latest();
 
             return DataTables::of($query)
                 ->addColumn('discount', function ($deal) {

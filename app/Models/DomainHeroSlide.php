@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class DomainHeroSlide extends Model
 {
     protected $fillable = [
-        'domain_id', 'image_path', 'title', 'subtitle',
+        'domain_id', 'image_path', 'title', 'highlight', 'subtitle',
         'description', 'sort_order', 'is_active',
     ];
 

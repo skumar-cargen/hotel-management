@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\PaymentCallbackController;
 use App\Http\Controllers\Api\PricingController;
 use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\TestimonialController;
+use App\Http\Controllers\Api\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -57,6 +58,11 @@ Route::middleware(['resolve.domain.api', 'throttle:api'])->group(function () {
         Route::get('bookings', [CustomerProfileController::class, 'bookings']);
         Route::get('bookings/{reference}', [CustomerProfileController::class, 'bookingDetail']);
         Route::delete('account', [CustomerProfileController::class, 'deleteAccount']);
+
+        // Wishlist
+        Route::get('wishlist', [WishlistController::class, 'index']);
+        Route::post('wishlist/{hotelId}', [WishlistController::class, 'store']);
+        Route::delete('wishlist/{hotelId}', [WishlistController::class, 'destroy']);
     });
 
     // Domain config
@@ -124,6 +130,10 @@ Route::middleware(['resolve.domain.api', 'throttle:api'])->group(function () {
     // Review submission
     Route::post('hotels/{slug}/reviews', [HotelController::class, 'submitReview'])
         ->middleware('throttle:5,1');
+
+    // Review helpful toggle
+    Route::post('reviews/{reviewId}/helpful', [HotelController::class, 'toggleReviewHelpful'])
+        ->middleware('throttle:30,1');
 
     // Contact form
     Route::post('contact', [ContactController::class, 'store'])

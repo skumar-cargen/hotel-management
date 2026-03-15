@@ -15,7 +15,7 @@ class PricingRuleController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = PricingRule::query()->with(['domain', 'hotel']);
+            $query = PricingRule::query()->with(['domain', 'hotel'])->latest();
 
             return DataTables::of($query)
                 ->addColumn('type_badge', function ($rule) {

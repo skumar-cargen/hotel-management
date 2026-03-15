@@ -17,7 +17,7 @@ class BookingController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = Booking::query()->with(['hotel', 'domain']);
+            $query = Booking::query()->with(['hotel', 'domain'])->latest();
             $this->scopeBookingsForUser($query);
 
             if ($request->filled('status')) {

@@ -71,6 +71,7 @@
                             <th>Rooms</th>
                             <th>Reviews</th>
                             <th>Price</th>
+                            <th>Featured</th>
                             <th>Status</th>
                             <th width="120">Actions</th>
                         </tr>
@@ -94,12 +95,13 @@
                     { data: 'room_types_count', name: 'room_types_count', searchable: false },
                     { data: 'reviews_count', name: 'reviews_count', searchable: false },
                     { data: 'min_price', name: 'min_price', searchable: false },
+                    { data: 'featured', name: 'is_featured', searchable: false },
                     { data: 'status', name: 'is_active', searchable: false },
                     { data: 'action', name: 'action', orderable: false, searchable: false }
                 ],
                 responsive: true,
                 pageLength: 25,
-                order: [[0, 'asc']]
+                order: []
             });
         });
         </script>

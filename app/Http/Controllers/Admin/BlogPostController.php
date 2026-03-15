@@ -14,7 +14,7 @@ class BlogPostController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = BlogPost::query()->with(['category', 'author', 'domains']);
+            $query = BlogPost::query()->with(['category', 'author', 'domains'])->latest();
 
             return DataTables::of($query)
                 ->addColumn('category_name', function ($post) {

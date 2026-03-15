@@ -84,6 +84,23 @@
                 .hero-toggle-switch { display: flex; align-items: center; gap: 6px; }
                 .hero-toggle-switch .form-check-input { cursor: pointer; }
                 .hero-toggle-switch label { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+
+                .hsc-fields { padding: 0.6rem 0.75rem; display: flex; flex-direction: column; gap: 0.4rem; }
+                .hsc-fields input, .hsc-fields textarea {
+                    width: 100%; border: 1px solid #e5e7eb; border-radius: 0.45rem;
+                    padding: 0.35rem 0.55rem; font-size: 0.75rem; color: var(--text-primary, #1f2937);
+                    outline: none; transition: border-color 0.2s;
+                }
+                .hsc-fields input:focus, .hsc-fields textarea:focus { border-color: #8b5cf6; box-shadow: 0 0 0 2px rgba(139,92,246,0.1); }
+                .hsc-fields textarea { resize: none; min-height: 44px; }
+                .hsc-fields .field-label { font-size: 0.65rem; font-weight: 700; color: var(--text-muted, #9ca3af); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 1px; }
+                .hsc-save-btn {
+                    width: 100%; padding: 0.4rem; border: none; border-radius: 0.45rem;
+                    background: linear-gradient(135deg, #ec4899, #8b5cf6); color: #fff;
+                    font-size: 0.72rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+                }
+                .hsc-save-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+                .hsc-save-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
             </style>
 
             {{-- Upload Zone --}}
@@ -135,6 +152,23 @@
                                 </div>
                                 <div></div>
                             </div>
+                        </div>
+                        <div class="hsc-fields">
+                            <div>
+                                <div class="field-label">Title</div>
+                                <input type="text" placeholder="e.g. Discover Luxury" data-field="title" value="{{ $slide->title }}">
+                            </div>
+                            <div>
+                                <div class="field-label">Highlight (gold text)</div>
+                                <input type="text" placeholder="e.g. Beyond Compare" data-field="highlight" value="{{ $slide->highlight }}">
+                            </div>
+                            <div>
+                                <div class="field-label">Subtitle</div>
+                                <textarea placeholder="Short description for the slide" data-field="subtitle">{{ $slide->subtitle }}</textarea>
+                            </div>
+                            <button type="button" class="hsc-save-btn" onclick="saveHeroSlideText({{ $slide->id }}, this)">
+                                <i class='bx bx-check me-1'></i> Save Content
+                            </button>
                         </div>
                         <div class="hsc-footer">
                             <div class="hero-toggle-switch">
@@ -230,6 +264,12 @@
                     <div></div>
                 </div>
             </div>
+            <div class="hsc-fields">
+                <div><div class="field-label">Title</div><input type="text" placeholder="e.g. Discover Luxury" data-field="title" value=""></div>
+                <div><div class="field-label">Highlight (gold text)</div><input type="text" placeholder="e.g. Beyond Compare" data-field="highlight" value=""></div>
+                <div><div class="field-label">Subtitle</div><textarea placeholder="Short description for the slide" data-field="subtitle"></textarea></div>
+                <button type="button" class="hsc-save-btn" onclick="saveHeroSlideText(${slide.id}, this)"><i class='bx bx-check me-1'></i> Save Content</button>
+            </div>
             <div class="hsc-footer">
                 <div class="hero-toggle-switch">
                     <div class="form-check form-switch mb-0">
@@ -258,6 +298,33 @@
                     Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Slide deleted', showConfirmButton: false, timer: 1500, customClass: { popup: 'rounded-3' } });
                 }
             }).catch(() => Swal.fire('Error', 'Failed to delete slide.', 'error'));
+        });
+    };
+
+    window.saveHeroSlideText = function(slideId, btn) {
+        const card = document.querySelector(`.hero-slide-item[data-id="${slideId}"]`);
+        if (!card) return;
+        const title = card.querySelector('[data-field="title"]').value;
+        const highlight = card.querySelector('[data-field="highlight"]').value;
+        const subtitle = card.querySelector('[data-field="subtitle"]').value;
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bx bx-loader-alt bx-spin me-1"></i> Saving...';
+
+        fetch(baseUrl + '/' + slideId, {
+            method: 'PUT',
+            headers: { 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ title, highlight, subtitle }),
+        }).then(r => r.json()).then(data => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bx bx-check me-1"></i> Save Content';
+            if (data.success) {
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Content saved', showConfirmButton: false, timer: 1500, customClass: { popup: 'rounded-3' } });
+            }
+        }).catch(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bx bx-check me-1"></i> Save Content';
+            Swal.fire('Error', 'Failed to save content.', 'error');
         });
     };
 

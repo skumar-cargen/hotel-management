@@ -13,7 +13,7 @@ class BlogCategoryController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = BlogCategory::query()->withCount('posts');
+            $query = BlogCategory::query()->withCount('posts')->latest();
 
             return DataTables::of($query)
                 ->addColumn('posts_count_label', function ($category) {
