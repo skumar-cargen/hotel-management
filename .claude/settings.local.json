@@ -48,7 +48,10 @@
       "Bash(cd /c/xampp/htdocs/hotel-management-system && ./vendor/bin/pint --test app/Services/PricingService.php app/Http/Controllers/Api/HotelController.php app/Http/Resources/HotelListResource.php 2>&1)",
       "Bash(grep:*)",
       "Bash(cd /c/xampp/htdocs/hotel-management-system && ./vendor/bin/pint app/Http/Controllers/Api/MpgsController.php config/mpgs.php 2>&1)",
-      "WebFetch(domain:dubaihotelresorts.com)"
+      "WebFetch(domain:dubaihotelresorts.com)",
+      "Bash(./vendor/bin/pint:*)",
+      "Bash(ls -la database/seeders/*DataSeeder.php)",
+      "Bash(do php:*)"
     ]
   }
 }

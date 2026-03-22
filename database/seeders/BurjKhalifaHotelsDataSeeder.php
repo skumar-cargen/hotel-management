@@ -9,6 +9,7 @@ use App\Models\Location;
 use App\Models\Review;
 use App\Models\RoomType;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class BurjKhalifaHotelsDataSeeder extends Seeder
@@ -403,13 +404,26 @@ class BurjKhalifaHotelsDataSeeder extends Seeder
                 continue;
             }
 
+            Storage::disk('public')->makeDirectory("hotels/{$hotel->id}");
+
             foreach ($imageCategories as $j => $img) {
                 $url = "https://loremflickr.com/800/600/{$img['keywords']}?lock=" . $counter++;
+
+                $filename = "{$img['category']}-{$j}.jpg";
+                $thumbFilename = "{$img['category']}-{$j}-thumb.jpg";
+                $storagePath = "hotels/{$hotel->id}/{$filename}";
+                $thumbStoragePath = "hotels/{$hotel->id}/{$thumbFilename}";
+                $fullPath = Storage::disk('public')->path($storagePath);
+                $thumbFullPath = Storage::disk('public')->path($thumbStoragePath);
+
+                $this->downloadHotelImage($fullPath, $url);
+                $this->downloadHotelImage($thumbFullPath, str_replace('800/600', '400/300', $url));
 
                 HotelImage::updateOrCreate(
                     ['hotel_id' => $hotel->id, 'sort_order' => $j],
                     [
-                        'image_path' => $url,
+                        'image_path' => $storagePath,
+                        'thumbnail_path' => $thumbStoragePath,
                         'category' => $img['category'],
                         'alt_text' => "{$hotel->name} — " . ucfirst($img['category']),
                         'is_primary' => $j === 0,
@@ -554,5 +568,65 @@ class BurjKhalifaHotelsDataSeeder extends Seeder
         }
 
         $this->command->line("  Reviews seeded & {$reviews->count()} testimonials linked");
+    }
+
+    // ─── Image Download Helper ──────────────────────────────────────────
+
+    private function downloadHotelImage(string $fullPath, string $url): bool
+    {
+        $dir = dirname($fullPath);
+        if (! is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
+        try {
+            $context = stream_context_create([
+                'http' => [
+                    'timeout' => 30,
+                    'follow_location' => true,
+                    'max_redirects' => 5,
+                    'header' => "User-Agent: Mozilla/5.0\r\n",
+                ],
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                ],
+            ]);
+
+            $imageData = @file_get_contents($url, false, $context);
+
+            if ($imageData && strlen($imageData) > 1000) {
+                file_put_contents($fullPath, $imageData);
+                return true;
+            }
+        } catch (\Exception $e) {
+            // Fall through to GD fallback
+        }
+
+        if (extension_loaded('gd')) {
+            $isThumb = str_contains($fullPath, '-thumb');
+            $w = $isThumb ? 400 : 1200;
+            $h = $isThumb ? 267 : 800;
+            $img = imagecreatetruecolor($w, $h);
+            $hash = crc32($url);
+            $r1 = abs($hash) % 80 + 80;
+            $g1 = abs($hash >> 8) % 80 + 80;
+            $b1 = abs($hash >> 16) % 80 + 100;
+            for ($y = 0; $y < $h; $y++) {
+                $ratio = $y / $h;
+                $color = imagecolorallocate(
+                    $img,
+                    (int) ($r1 + (180 - $r1) * $ratio),
+                    (int) ($g1 + (200 - $g1) * $ratio),
+                    (int) ($b1 + (220 - $b1) * $ratio)
+                );
+                imageline($img, 0, $y, $w, $y, $color);
+            }
+            imagejpeg($img, $fullPath, 90);
+            imagedestroy($img);
+            return true;
+        }
+
+        return false;
     }
 }
