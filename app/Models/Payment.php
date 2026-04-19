@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\PaymentGateway;
+use App\Enums\PaymentMethod;
+use App\Enums\PaymentStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -23,6 +26,9 @@ class Payment extends Model
             'refunded_at' => 'datetime',
             'paid_at' => 'datetime',
             'failed_at' => 'datetime',
+            'status' => PaymentStatus::class,
+            'payment_method' => PaymentMethod::class,
+            'gateway' => PaymentGateway::class,
         ];
     }
 

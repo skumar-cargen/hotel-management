@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\BookingStatus;
+use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UpdateBookingRequest;
 use App\Models\Booking;
 use App\Models\Hotel;
 use App\Models\Payment;
@@ -39,19 +42,19 @@ class BookingController extends Controller
                     return e($booking->guest_first_name.' '.$booking->guest_last_name);
                 })
                 ->addColumn('hotel_name', function ($booking) {
-                    return $booking->hotel->name ?? '-';
+                    return e($booking->hotel->name ?? '-');
                 })
                 ->addColumn('status', function ($booking) {
                     $colors = [
-                        'pending' => 'warning',
-                        'paid' => 'info',
-                        'confirmed' => 'success',
-                        'cancelled' => 'danger',
-                        'refunded' => 'secondary',
+                        BookingStatus::Pending->value => 'warning',
+                        BookingStatus::Paid->value => 'info',
+                        BookingStatus::Confirmed->value => 'success',
+                        BookingStatus::Cancelled->value => 'danger',
+                        BookingStatus::Refunded->value => 'secondary',
                     ];
-                    $color = $colors[$booking->status] ?? 'secondary';
+                    $color = $colors[$booking->status->value] ?? 'secondary';
 
-                    return '<span class="badge bg-'.$color.'">'.ucfirst($booking->status).'</span>';
+                    return '<span class="badge bg-'.$color.'">'.ucfirst($booking->status->value).'</span>';
                 })
                 ->editColumn('check_in_date', function ($booking) {
                     return $booking->check_in_date ? $booking->check_in_date->format('M d, Y') : '-';
@@ -89,20 +92,17 @@ class BookingController extends Controller
         return view('admin.bookings.show', compact('booking'));
     }
 
-    public function update(Request $request, Booking $booking)
+    public function update(UpdateBookingRequest $request, Booking $booking)
     {
         $this->authorizeBooking($booking);
 
-        $validated = $request->validate([
-            'status' => 'required|in:pending,paid,confirmed,cancelled,refunded',
-            'cancellation_reason' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
-        if ($validated['status'] === 'cancelled') {
+        if ($validated['status'] === BookingStatus::Cancelled->value) {
             $validated['cancelled_at'] = now();
         }
 
-        if ($validated['status'] === 'confirmed') {
+        if ($validated['status'] === BookingStatus::Confirmed->value) {
             $validated['confirmed_at'] = now();
         }
 
@@ -114,7 +114,7 @@ class BookingController extends Controller
     public function refund(Request $request, Booking $booking)
     {
         $this->authorizeBooking($booking);
-        $booking->update(['status' => 'refunded']);
+        $booking->update(['status' => BookingStatus::Refunded->value]);
 
         return redirect()->route('admin.bookings.show', $booking)->with('success', 'Refund processed successfully.');
     }
@@ -123,11 +123,11 @@ class BookingController extends Controller
     {
         $this->authorizeBooking($booking);
 
-        if (in_array($booking->status, ['cancelled', 'refunded'])) {
+        if (in_array($booking->status, [BookingStatus::Cancelled, BookingStatus::Refunded])) {
             return back()->with('error', 'Cannot record payment for cancelled or refunded bookings.');
         }
 
-        if ($booking->payments()->where('status', 'completed')->exists()) {
+        if ($booking->payments()->where('status', PaymentStatus::Completed)->exists()) {
             return back()->with('error', 'Payment has already been recorded for this booking.');
         }
 
@@ -137,7 +137,12 @@ class BookingController extends Controller
             'notes' => 'nullable|string|max:500',
         ]);
 
-        $prefixes = ['cash' => 'CASH', 'bank_transfer' => 'BT', 'card' => 'POS', 'cheque' => 'CHQ'];
+        $prefixes = [
+            \App\Enums\PaymentMethod::Cash->value => 'CASH',
+            \App\Enums\PaymentMethod::BankTransfer->value => 'BT',
+            \App\Enums\PaymentMethod::Card->value => 'POS',
+            \App\Enums\PaymentMethod::Cheque->value => 'CHQ',
+        ];
         $prefix = $prefixes[$validated['payment_method']] ?? 'PAY';
 
         Payment::create([
@@ -147,7 +152,7 @@ class BookingController extends Controller
             'gateway' => 'manual',
             'amount' => $validated['amount'],
             'currency' => $booking->currency ?? 'AED',
-            'status' => 'completed',
+            'status' => PaymentStatus::Completed->value,
             'paid_at' => now(),
             'gateway_response' => json_encode([
                 'type' => 'cash',

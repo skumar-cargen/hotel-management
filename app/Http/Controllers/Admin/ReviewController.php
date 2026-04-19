@@ -21,7 +21,7 @@ class ReviewController extends Controller
 
             return DataTables::of($query)
                 ->addColumn('hotel_name', function ($review) {
-                    return $review->hotel->name ?? '-';
+                    return e($review->hotel->name ?? '-');
                 })
                 ->addColumn('rating_display', function ($review) {
                     $stars = '';

@@ -392,6 +392,7 @@
 
                         {{-- About Us Tab --}}
                         <div class="tab-content-panel active" id="tab-about_us">
+                            {{-- Safe: browsers don't parse HTML inside textarea elements --}}
                             <textarea name="about_us" id="editor_about_us" class="summernote-editor">{!! old('about_us', $domain->about_us ?? '') !!}</textarea>
 
                             <div class="seo-fields">
@@ -408,6 +409,7 @@
 
                         {{-- Privacy Policy Tab --}}
                         <div class="tab-content-panel" id="tab-privacy_policy">
+                            {{-- Safe: browsers don't parse HTML inside textarea elements --}}
                             <textarea name="privacy_policy" id="editor_privacy_policy" class="summernote-editor">{!! old('privacy_policy', $domain->privacy_policy ?? '') !!}</textarea>
 
                             <div class="seo-fields">
@@ -424,6 +426,7 @@
 
                         {{-- Terms & Conditions Tab --}}
                         <div class="tab-content-panel" id="tab-terms_conditions">
+                            {{-- Safe: browsers don't parse HTML inside textarea elements --}}
                             <textarea name="terms_conditions" id="editor_terms_conditions" class="summernote-editor">{!! old('terms_conditions', $domain->terms_conditions ?? '') !!}</textarea>
 
                             <div class="seo-fields">

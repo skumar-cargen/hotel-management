@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreHotelRequest;
+use App\Http\Requests\Admin\UpdateHotelRequest;
+use App\Jobs\SendNewHotelNotification;
 use App\Models\Amenity;
 use App\Models\Domain;
 use App\Models\Hotel;
@@ -26,7 +29,7 @@ class HotelController extends Controller
 
             return DataTables::of($query)
                 ->addColumn('location_name', function ($hotel) {
-                    return $hotel->location->name ?? '-';
+                    return e($hotel->location->name ?? '-');
                 })
                 ->addColumn('stars', function ($hotel) {
                     $stars = '';
@@ -76,29 +79,9 @@ class HotelController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreHotelRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'location_id' => 'required|exists:locations,id',
-            'star_rating' => 'required|integer|between:1,5',
-            'description' => 'nullable|string',
-            'short_description' => 'nullable|string|max:255',
-            'address' => 'nullable|string|max:255',
-            'latitude' => 'nullable|numeric',
-            'longitude' => 'nullable|numeric',
-            'phone' => 'nullable|string|max:50',
-            'email' => 'nullable|email|max:255',
-            'website' => 'nullable|url|max:255',
-            'check_in_time' => 'nullable|string|max:10',
-            'check_out_time' => 'nullable|string|max:10',
-            'cancellation_policy' => 'nullable|string',
-            'meta_title' => 'nullable|string|max:255',
-            'meta_description' => 'nullable|string',
-            'meta_keywords' => 'nullable|string|max:255',
-            'canonical_url' => 'nullable|url|max:255',
-            'faq_data' => 'nullable|array',
-        ]);
+        $validated = $request->validated();
 
         $validated['slug'] = Str::slug($validated['name']);
         $validated['is_active'] = $request->boolean('is_active', true);
@@ -118,6 +101,10 @@ class HotelController extends Controller
             $domainIds = Auth::user()->managedDomainIds();
         }
         $hotel->domains()->sync($domainIds);
+
+        if ($hotel->is_active && !empty($domainIds)) {
+            SendNewHotelNotification::dispatch($hotel, $domainIds);
+        }
 
         return redirect()->route('admin.hotels.index')->with('success', 'Hotel created successfully.');
     }
@@ -144,31 +131,11 @@ class HotelController extends Controller
         return view('admin.hotels.edit', compact('hotel', 'locations', 'amenities', 'domains', 'selectedAmenities', 'selectedDomains', 'imageCategories'));
     }
 
-    public function update(Request $request, Hotel $hotel)
+    public function update(UpdateHotelRequest $request, Hotel $hotel)
     {
         $this->authorizeHotel($hotel);
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'location_id' => 'required|exists:locations,id',
-            'star_rating' => 'required|integer|between:1,5',
-            'description' => 'nullable|string',
-            'short_description' => 'nullable|string|max:255',
-            'address' => 'nullable|string|max:255',
-            'latitude' => 'nullable|numeric',
-            'longitude' => 'nullable|numeric',
-            'phone' => 'nullable|string|max:50',
-            'email' => 'nullable|email|max:255',
-            'website' => 'nullable|url|max:255',
-            'check_in_time' => 'nullable|string|max:10',
-            'check_out_time' => 'nullable|string|max:10',
-            'cancellation_policy' => 'nullable|string',
-            'meta_title' => 'nullable|string|max:255',
-            'meta_description' => 'nullable|string',
-            'meta_keywords' => 'nullable|string|max:255',
-            'canonical_url' => 'nullable|url|max:255',
-            'faq_data' => 'nullable|array',
-        ]);
+        $validated = $request->validated();
 
         $validated['slug'] = Str::slug($validated['name']);
         $validated['is_active'] = $request->boolean('is_active');

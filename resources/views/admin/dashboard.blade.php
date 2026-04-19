@@ -874,9 +874,9 @@
                                             'cancelled' => ['bg' => '#fef2f2', 'color' => '#dc2626'],
                                             'refunded' => ['bg' => '#f1f5f9', 'color' => '#64748b'],
                                         ];
-                                        $st = $sc[$booking->status] ?? ['bg' => '#f1f5f9', 'color' => '#64748b'];
+                                        $st = $sc[$booking->status->value] ?? ['bg' => '#f1f5f9', 'color' => '#64748b'];
                                     @endphp
-                                    <span class="status-badge" style="background:{{ $st['bg'] }};color:{{ $st['color'] }};">{{ ucfirst($booking->status) }}</span>
+                                    <span class="status-badge" style="background:{{ $st['bg'] }};color:{{ $st['color'] }};">{{ ucfirst($booking->status->value) }}</span>
                                 </td>
                             </tr>
                             @empty
@@ -969,10 +969,10 @@
                 new Chart(rev30Ctx, {
                     type: 'line',
                     data: {
-                        labels: {!! json_encode(array_column($revenueChart30, 'label')) !!},
+                        labels: @json(array_column($revenueChart30, 'label')),
                         datasets: [{
                             label: 'Revenue (AED)',
-                            data: {!! json_encode(array_column($revenueChart30, 'value')) !!},
+                            data: @json(array_column($revenueChart30, 'value')),
                             borderColor: '#6366f1',
                             backgroundColor: rev30Grad,
                             borderWidth: 3, tension: 0.4, fill: true,
@@ -1013,10 +1013,10 @@
                 new Chart(monthlyCtx, {
                     type: 'bar',
                     data: {
-                        labels: {!! json_encode(array_column($monthlyRevenue, 'short')) !!},
+                        labels: @json(array_column($monthlyRevenue, 'short')),
                         datasets: [{
                             label: 'Revenue',
-                            data: {!! json_encode(array_column($monthlyRevenue, 'revenue')) !!},
+                            data: @json(array_column($monthlyRevenue, 'revenue')),
                             backgroundColor: mBarColors,
                             borderColor: mBarColors,
                             borderWidth: 2,
@@ -1054,10 +1054,10 @@
                 new Chart(book30Ctx, {
                     type: 'line',
                     data: {
-                        labels: {!! json_encode(array_column($bookingsChart30, 'label')) !!},
+                        labels: @json(array_column($bookingsChart30, 'label')),
                         datasets: [{
                             label: 'Bookings',
-                            data: {!! json_encode(array_column($bookingsChart30, 'value')) !!},
+                            data: @json(array_column($bookingsChart30, 'value')),
                             borderColor: '#10b981',
                             backgroundColor: book30Grad,
                             borderWidth: 3, tension: 0.4, fill: true,

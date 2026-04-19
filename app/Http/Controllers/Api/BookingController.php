@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\BookingStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\CreateBookingRequest;
 use App\Http\Resources\BookingConfirmationResource;
@@ -14,6 +15,7 @@ use App\Services\MashreqPaymentService;
 use App\Services\PricingService;
 use App\Traits\ApiResponses;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\PersonalAccessToken;
 
@@ -57,37 +59,39 @@ class BookingController extends Controller
             }
         }
 
-        $booking = Booking::create([
-            'reference_number' => $reference,
-            'domain_id' => $domain->id,
-            'customer_id' => $customerId,
-            'hotel_id' => $hotel->id,
-            'room_type_id' => $roomType->id,
-            'guest_first_name' => $validated['guest_first_name'],
-            'guest_last_name' => $validated['guest_last_name'],
-            'guest_email' => $validated['guest_email'],
-            'guest_phone' => $validated['guest_phone'],
-            'guest_nationality' => $validated['guest_nationality'] ?? null,
-            'check_in_date' => $checkIn,
-            'check_out_date' => $checkOut,
-            'num_nights' => $breakdown->numNights,
-            'num_adults' => $validated['num_adults'],
-            'num_children' => $validated['num_children'] ?? 0,
-            'num_rooms' => $numRooms,
-            'special_requests' => $validated['special_requests'] ?? null,
-            'room_price_per_night' => $breakdown->finalPerNight,
-            'subtotal' => $breakdown->subtotal,
-            'tax_amount' => $breakdown->taxAmount,
-            'tax_percentage' => $breakdown->taxPercentage,
-            'tourism_fee' => $breakdown->tourismFee,
-            'service_charge' => $breakdown->serviceCharge,
-            'total_amount' => $breakdown->totalAmount,
-            'currency' => 'AED',
-            'status' => 'pending',
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-            'booked_at' => now(),
-        ]);
+        $booking = DB::transaction(function () use ($reference, $domain, $customerId, $hotel, $roomType, $validated, $checkIn, $checkOut, $breakdown, $numRooms, $request) {
+            return Booking::create([
+                'reference_number' => $reference,
+                'domain_id' => $domain->id,
+                'customer_id' => $customerId,
+                'hotel_id' => $hotel->id,
+                'room_type_id' => $roomType->id,
+                'guest_first_name' => $validated['guest_first_name'],
+                'guest_last_name' => $validated['guest_last_name'],
+                'guest_email' => $validated['guest_email'],
+                'guest_phone' => $validated['guest_phone'],
+                'guest_nationality' => $validated['guest_nationality'] ?? null,
+                'check_in_date' => $checkIn,
+                'check_out_date' => $checkOut,
+                'num_nights' => $breakdown->numNights,
+                'num_adults' => $validated['num_adults'],
+                'num_children' => $validated['num_children'] ?? 0,
+                'num_rooms' => $numRooms,
+                'special_requests' => $validated['special_requests'] ?? null,
+                'room_price_per_night' => $breakdown->finalPerNight,
+                'subtotal' => $breakdown->subtotal,
+                'tax_amount' => $breakdown->taxAmount,
+                'tax_percentage' => $breakdown->taxPercentage,
+                'tourism_fee' => $breakdown->tourismFee,
+                'service_charge' => $breakdown->serviceCharge,
+                'total_amount' => $breakdown->totalAmount,
+                'currency' => 'AED',
+                'status' => BookingStatus::Pending,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'booked_at' => now(),
+            ]);
+        });
 
         $booking->load(['hotel', 'roomType']);
 
@@ -122,7 +126,7 @@ class BookingController extends Controller
             return $this->errorResponse('Booking not found.', 404);
         }
 
-        if ($booking->status !== 'pending') {
+        if ($booking->status !== BookingStatus::Pending) {
             return $this->errorResponse('Booking is not in a payable state.', 422);
         }
 
@@ -171,12 +175,12 @@ class BookingController extends Controller
             return $this->errorResponse('Email verification failed.', 403);
         }
 
-        if (! in_array($booking->status, ['pending', 'confirmed'])) {
+        if (! in_array($booking->status, [BookingStatus::Pending, BookingStatus::Confirmed])) {
             return $this->errorResponse('This booking cannot be cancelled.', 422);
         }
 
         $booking->update([
-            'status' => 'cancelled',
+            'status' => BookingStatus::Cancelled,
             'cancellation_reason' => request()->input('cancellation_reason'),
             'cancelled_at' => now(),
         ]);

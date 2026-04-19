@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreLocationRequest;
+use App\Http\Requests\Admin\UpdateLocationRequest;
 use App\Models\Domain;
 use App\Models\Location;
 use Illuminate\Http\Request;
@@ -49,22 +51,9 @@ class LocationController extends Controller
         return view('admin.locations.edit', ['location' => new Location, 'domains' => Domain::active()->get()]);
     }
 
-    public function store(Request $request)
+    public function store(StoreLocationRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'city' => 'required|string|max:255',
-            'country' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'short_description' => 'nullable|string|max:255',
-            'latitude' => 'nullable|numeric',
-            'longitude' => 'nullable|numeric',
-            'meta_title' => 'nullable|string|max:255',
-            'meta_description' => 'nullable|string',
-            'meta_keywords' => 'nullable|string|max:255',
-            'seo_content' => 'nullable|string',
-            'canonical_url' => 'nullable|url|max:255',
-        ]);
+        $validated = $request->validated();
 
         $slug = Str::slug($validated['name']);
         $count = Location::withTrashed()->where('slug', $slug)->count();
@@ -100,22 +89,9 @@ class LocationController extends Controller
         return view('admin.locations.edit', compact('location', 'domains', 'selectedDomains'));
     }
 
-    public function update(Request $request, Location $location)
+    public function update(UpdateLocationRequest $request, Location $location)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'city' => 'required|string|max:255',
-            'country' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'short_description' => 'nullable|string|max:255',
-            'latitude' => 'nullable|numeric',
-            'longitude' => 'nullable|numeric',
-            'meta_title' => 'nullable|string|max:255',
-            'meta_description' => 'nullable|string',
-            'meta_keywords' => 'nullable|string|max:255',
-            'seo_content' => 'nullable|string',
-            'canonical_url' => 'nullable|url|max:255',
-        ]);
+        $validated = $request->validated();
 
         $slug = Str::slug($validated['name']);
         $count = Location::withTrashed()->where('slug', $slug)->where('id', '!=', $location->id)->count();

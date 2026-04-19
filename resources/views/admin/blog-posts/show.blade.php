@@ -45,7 +45,7 @@
                         @php
                             $statusColors = ['draft' => 'warning', 'published' => 'success', 'archived' => 'secondary'];
                         @endphp
-                        <span class="badge bg-{{ $statusColors[$post->status] ?? 'secondary' }}">{{ ucfirst($post->status) }}</span>
+                        <span class="badge bg-{{ $statusColors[$post->status->value] ?? 'secondary' }}">{{ ucfirst($post->status->value) }}</span>
                         @if($post->is_featured)
                         <span class="badge bg-info">Featured</span>
                         @endif
@@ -98,7 +98,7 @@
                         </div>
                     </div>
                     <div class="preview-content">
-                        {!! $post->content !!}
+                        {!! strip_tags($post->content, '<p><br><strong><em><b><i><u><a><ul><ol><li><h1><h2><h3><h4><h5><h6><blockquote><pre><code><table><thead><tbody><tr><td><th><img><hr><span><div><figure><figcaption><sub><sup>') !!}
                     </div>
                 </div>
             </div>
@@ -157,7 +157,7 @@
                             <h6>Post Details</h6>
                         </div>
                     </div>
-                    <div class="meta-item"><span class="meta-label">Status</span><span class="badge bg-{{ $statusColors[$post->status] ?? 'secondary' }}">{{ ucfirst($post->status) }}</span></div>
+                    <div class="meta-item"><span class="meta-label">Status</span><span class="badge bg-{{ $statusColors[$post->status->value] ?? 'secondary' }}">{{ ucfirst($post->status->value) }}</span></div>
                     <div class="meta-item"><span class="meta-label">Active</span><span class="meta-value">{{ $post->is_active ? 'Yes' : 'No' }}</span></div>
                     <div class="meta-item"><span class="meta-label">Featured</span><span class="meta-value">{{ $post->is_featured ? 'Yes' : 'No' }}</span></div>
                     <div class="meta-item"><span class="meta-label">Category</span><span class="meta-value">{{ $post->category?->name ?? '—' }}</span></div>

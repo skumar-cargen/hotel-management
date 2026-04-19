@@ -245,7 +245,7 @@
                                         'category' => ['label' => 'Category', 'desc' => 'By room or hotel type', 'icon' => 'bx-category', 'bg' => 'rgba(107,114,128,0.08)', 'color' => '#6b7280'],
                                         'day_of_week' => ['label' => 'Day of Week', 'desc' => 'Weekend / weekday rates', 'icon' => 'bx-calendar-week', 'bg' => 'rgba(118,75,162,0.08)', 'color' => '#764ba2'],
                                     ];
-                                    $selectedType = old('type', $pricingRule->type ?? '');
+                                    $selectedType = old('type', ($pricingRule->type ?? null)?->value ?? '');
                                 @endphp
 
                                 <label class="form-label" style="font-size: 0.82rem; font-weight: 600;">Rule Type <span class="text-danger">*</span></label>
@@ -285,14 +285,14 @@
                                     <x-form.select name="adjustment_type" label="Adjustment Type" :options="[
                                         'percentage' => 'Percentage (%)',
                                         'fixed_amount' => 'Fixed Amount (AED)',
-                                    ]" :selected="old('adjustment_type', $pricingRule->adjustment_type ?? 'percentage')" required class="col-md-6" />
+                                    ]" :selected="old('adjustment_type', ($pricingRule->adjustment_type ?? \App\Enums\AdjustmentType::Percentage)->value)" required class="col-md-6" />
                                     <x-form.input name="adjustment_value" label="Value" type="number" step="0.01" :value="old('adjustment_value', $pricingRule->adjustment_value ?? '')" required placeholder="e.g. 15 or -10" class="col-md-6" />
                                 </div>
 
                                 {{-- Live Preview --}}
                                 <div class="adj-display mt-3">
                                     <span class="adj-value" id="adjPreviewValue">{{ old('adjustment_value', $pricingRule->adjustment_value ?? '0') }}</span>
-                                    <span class="adj-suffix" id="adjPreviewSuffix">{{ old('adjustment_type', $pricingRule->adjustment_type ?? 'percentage') === 'percentage' ? '%' : 'AED' }}</span>
+                                    <span class="adj-suffix" id="adjPreviewSuffix">{{ old('adjustment_type', ($pricingRule->adjustment_type ?? \App\Enums\AdjustmentType::Percentage)->value) === 'percentage' ? '%' : 'AED' }}</span>
                                 </div>
                                 <div class="text-center mt-2" style="font-size: 0.75rem; color: var(--text-muted);">
                                     Positive values increase price, negative values decrease

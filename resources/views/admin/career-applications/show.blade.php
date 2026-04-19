@@ -76,8 +76,8 @@
                         @php
                             $statusColors = ['new' => 'primary', 'reviewed' => 'info', 'shortlisted' => 'success', 'rejected' => 'danger'];
                         @endphp
-                        <span class="badge bg-{{ $statusColors[$careerApplication->status] ?? 'secondary' }}" style="font-size: .8rem; padding: .4rem .8rem;">
-                            {{ ucfirst($careerApplication->status) }}
+                        <span class="badge bg-{{ $statusColors[$careerApplication->status->value] ?? 'secondary' }}" style="font-size: .8rem; padding: .4rem .8rem;">
+                            {{ ucfirst($careerApplication->status->value) }}
                         </span>
                     </div>
 
@@ -171,10 +171,10 @@
                         @csrf
                         @method('PUT')
                         <select name="status" class="form-select status-select mb-3">
-                            <option value="new" {{ $careerApplication->status === 'new' ? 'selected' : '' }}>New</option>
-                            <option value="reviewed" {{ $careerApplication->status === 'reviewed' ? 'selected' : '' }}>Reviewed</option>
-                            <option value="shortlisted" {{ $careerApplication->status === 'shortlisted' ? 'selected' : '' }}>Shortlisted</option>
-                            <option value="rejected" {{ $careerApplication->status === 'rejected' ? 'selected' : '' }}>Rejected</option>
+                            <option value="new" {{ $careerApplication->status->value === 'new' ? 'selected' : '' }}>New</option>
+                            <option value="reviewed" {{ $careerApplication->status->value === 'reviewed' ? 'selected' : '' }}>Reviewed</option>
+                            <option value="shortlisted" {{ $careerApplication->status->value === 'shortlisted' ? 'selected' : '' }}>Shortlisted</option>
+                            <option value="rejected" {{ $careerApplication->status->value === 'rejected' ? 'selected' : '' }}>Rejected</option>
                         </select>
                         <button type="submit" class="btn btn-primary w-100">
                             <i class='bx bx-check me-1'></i> Update Status

@@ -26,9 +26,17 @@ class HotelObserver
 
     protected function recalculateCachedFields(Hotel $hotel): void
     {
-        // Only recalculate if not already being set explicitly
-        if (! $hotel->isDirty(['avg_rating', 'total_reviews', 'min_price'])) {
+        // Skip recalculation if these fields are being set explicitly
+        if ($hotel->isDirty(['avg_rating', 'total_reviews', 'min_price'])) {
             return;
         }
+
+        $avgRating = $hotel->reviews()->where('is_approved', true)->avg('rating') ?? 0;
+        $totalReviews = $hotel->reviews()->where('is_approved', true)->count();
+        $minPrice = $hotel->roomTypes()->where('is_active', true)->min('base_price') ?? 0;
+
+        $hotel->avg_rating = round($avgRating, 2);
+        $hotel->total_reviews = $totalReviews;
+        $hotel->min_price = $minPrice;
     }
 }

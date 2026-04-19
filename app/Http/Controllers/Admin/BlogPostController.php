@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\BlogPostStatus;
 use App\Http\Controllers\Controller;
+use App\Jobs\SendNewBlogPostNotification;
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use Illuminate\Http\Request;
@@ -34,7 +36,7 @@ class BlogPostController extends Controller
                         'published' => ['Published', 'success'],
                         'archived' => ['Archived', 'secondary'],
                     ];
-                    $label = $labels[$post->status] ?? ['Unknown', 'secondary'];
+                    $label = $labels[$post->status->value] ?? ['Unknown', 'secondary'];
 
                     return '<span class="badge bg-'.$label[1].'">'.$label[0].'</span>';
                 })
@@ -124,6 +126,10 @@ class BlogPostController extends Controller
         $post = BlogPost::create($validated);
         $post->domains()->sync($request->input('domains', []));
 
+        if ($post->status === BlogPostStatus::Published) {
+            SendNewBlogPostNotification::dispatch($post);
+        }
+
         return redirect()->route('admin.blog-posts.index')->with('success', 'Blog post created successfully.');
     }
 
@@ -192,9 +198,15 @@ class BlogPostController extends Controller
             $validated['og_image'] = $request->file('og_image')->store('blog/og', 'public');
         }
 
+        $wasPublished = $blogPost->status === BlogPostStatus::Published;
+
         unset($validated['domains']);
         $blogPost->update($validated);
         $blogPost->domains()->sync($request->input('domains', []));
+
+        if (!$wasPublished && $blogPost->status === BlogPostStatus::Published) {
+            SendNewBlogPostNotification::dispatch($blogPost->fresh());
+        }
 
         return redirect()->route('admin.blog-posts.index')->with('success', 'Blog post updated successfully.');
     }

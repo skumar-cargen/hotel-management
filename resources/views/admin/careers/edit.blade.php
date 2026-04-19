@@ -199,13 +199,13 @@
                             'part_time' => 'Part Time',
                             'contract' => 'Contract',
                             'internship' => 'Internship',
-                        ]" :selected="old('job_type', $career->job_type ?? 'full_time')" required class="col-12" />
+                        ]" :selected="old('job_type', ($career->job_type ?? \App\Enums\JobType::FullTime)->value)" required class="col-12" />
 
                         {{-- Live Job Type Preview --}}
                         <div class="job-type-preview">
                             <div class="jtp-badge">
                                 <i class='bx bx-briefcase-alt-2'></i>
-                                <span id="jobTypePreview">{{ ['full_time'=>'Full Time','part_time'=>'Part Time','contract'=>'Contract','internship'=>'Internship'][old('job_type', $career->job_type ?? 'full_time')] }}</span>
+                                <span id="jobTypePreview">{{ ['full_time'=>'Full Time','part_time'=>'Part Time','contract'=>'Contract','internship'=>'Internship'][old('job_type', ($career->job_type ?? \App\Enums\JobType::FullTime)->value)] }}</span>
                                 <span style="color: var(--text-muted); font-weight: 500; font-size: .8rem;">
                                     &mdash; {{ old('location', $career->location ?? 'Location') }}
                                 </span>
@@ -250,18 +250,22 @@
                         <div class="tab-content">
                             <div class="tab-pane fade show active" id="tab-about">
                                 <label class="form-label">About the Role</label>
+                                {{-- Safe: browsers don't parse HTML inside textarea elements --}}
                                 <textarea name="about_role" class="summernote-editor">{!! old('about_role', $career->about_role ?? '') !!}</textarea>
                             </div>
                             <div class="tab-pane fade" id="tab-responsibilities">
                                 <label class="form-label">Responsibilities</label>
+                                {{-- Safe: browsers don't parse HTML inside textarea elements --}}
                                 <textarea name="responsibilities" class="summernote-editor">{!! old('responsibilities', $career->responsibilities ?? '') !!}</textarea>
                             </div>
                             <div class="tab-pane fade" id="tab-requirements">
                                 <label class="form-label">Requirements</label>
+                                {{-- Safe: browsers don't parse HTML inside textarea elements --}}
                                 <textarea name="requirements" class="summernote-editor">{!! old('requirements', $career->requirements ?? '') !!}</textarea>
                             </div>
                             <div class="tab-pane fade" id="tab-offer">
                                 <label class="form-label">What We Offer</label>
+                                {{-- Safe: browsers don't parse HTML inside textarea elements --}}
                                 <textarea name="what_we_offer" class="summernote-editor">{!! old('what_we_offer', $career->what_we_offer ?? '') !!}</textarea>
                             </div>
                         </div>

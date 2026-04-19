@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\BookingStatus;
+use App\Enums\PaymentGateway;
+use App\Enums\PaymentMethod;
+use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Payment;
@@ -47,15 +51,16 @@ class MpgsController extends Controller
             return $this->errorResponse('Booking not found.', 404);
         }
 
-        if ($booking->status !== 'pending') {
+        if ($booking->status !== BookingStatus::Pending) {
             return $this->errorResponse('Booking is not in a payable state.', 422);
         }
 
-        // Build frontend URLs using the domain's URL
-        $frontendUrl = rtrim($domain->domain, '/');
+        // Build frontend URLs — use FRONTEND_URL env in dev, otherwise domain URL
+        $frontendUrl = config('app.frontend_url') ?: rtrim($domain->domain, '/');
         if (! str_starts_with($frontendUrl, 'http')) {
             $frontendUrl = "https://{$frontendUrl}";
         }
+        $frontendUrl = rtrim($frontendUrl, '/');
 
         $currency = $booking->currency ?: ($domain->default_currency ?: 'AED');
 
@@ -115,10 +120,10 @@ class MpgsController extends Controller
             Payment::create([
                 'booking_id' => $booking->id,
                 'transaction_id' => $sessionId,
-                'gateway' => 'mpgs',
+                'gateway' => PaymentGateway::Mpgs,
                 'amount' => $booking->total_amount,
                 'currency' => $currency,
-                'status' => 'initiated',
+                'status' => PaymentStatus::Initiated,
                 'gateway_response' => $body,
             ]);
 
@@ -193,14 +198,14 @@ class MpgsController extends Controller
 
             // Find the initiated payment record
             $payment = Payment::where('booking_id', $booking->id)
-                ->where('gateway', 'mpgs')
+                ->where('gateway', PaymentGateway::Mpgs)
                 ->latest()
                 ->first();
 
             if ($orderStatus === 'SUCCESS') {
                 // Update booking status
                 $booking->update([
-                    'status' => 'confirmed',
+                    'status' => BookingStatus::Confirmed,
                     'confirmed_at' => now(),
                 ]);
 
@@ -208,15 +213,15 @@ class MpgsController extends Controller
                 if ($payment) {
                     $payment->update([
                         'transaction_id' => $transactionId ?: $payment->transaction_id,
-                        'status' => 'completed',
+                        'status' => PaymentStatus::Completed,
                         'paid_at' => now(),
-                        'payment_method' => $body['sourceOfFunds']['provided']['card']['brand'] ?? 'card',
+                        'payment_method' => PaymentMethod::tryFrom($body['sourceOfFunds']['provided']['card']['brand'] ?? 'card') ?? PaymentMethod::Card,
                         'gateway_response' => $body,
                     ]);
                 }
 
                 return $this->successResponse([
-                    'status' => 'paid',
+                    'status' => BookingStatus::Paid->value,
                     'booking_reference' => $booking->reference_number,
                     'transaction_id' => $transactionId,
                 ]);
@@ -225,7 +230,7 @@ class MpgsController extends Controller
             // Payment failed
             if ($payment) {
                 $payment->update([
-                    'status' => 'failed',
+                    'status' => PaymentStatus::Failed,
                     'failed_at' => now(),
                     'failure_reason' => $body['result'] ?? 'Payment not successful',
                     'gateway_response' => $body,
@@ -233,7 +238,7 @@ class MpgsController extends Controller
             }
 
             return $this->successResponse([
-                'status' => 'failed',
+                'status' => PaymentStatus::Failed->value,
                 'booking_reference' => $booking->reference_number,
                 'transaction_id' => $transactionId,
             ]);

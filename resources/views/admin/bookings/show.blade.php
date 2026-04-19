@@ -8,7 +8,7 @@
         @php
             $statusColors = ['pending'=>'warning','paid'=>'info','confirmed'=>'success','cancelled'=>'danger','refunded'=>'secondary'];
         @endphp
-        <span class="badge bg-{{ $statusColors[$booking->status] ?? 'secondary' }} fs-6">{{ ucfirst($booking->status) }}</span>
+        <span class="badge bg-{{ $statusColors[$booking->status->value] ?? 'secondary' }} fs-6">{{ ucfirst($booking->status->value) }}</span>
     </x-slot:actions>
 
     <div class="row g-4">
@@ -110,12 +110,12 @@
                                     @php
                                         $methodLabels = ['cash'=>'Cash','bank_transfer'=>'Bank Transfer','card'=>'Card (POS)','cheque'=>'Cheque','mashreq'=>'Mashreq Gateway'];
                                     @endphp
-                                    <td><span class="badge bg-light text-dark">{{ $methodLabels[$payment->payment_method] ?? ucfirst($payment->payment_method ?? '-') }}</span></td>
+                                    <td><span class="badge bg-light text-dark">{{ $methodLabels[$payment->payment_method->value ?? ''] ?? ucfirst($payment->payment_method->value ?? '-') }}</span></td>
                                     <td>
                                         @php
                                             $paymentStatusColors = ['completed'=>'success','pending'=>'warning','failed'=>'danger','refunded'=>'secondary'];
                                         @endphp
-                                        <span class="badge bg-{{ $paymentStatusColors[$payment->status] ?? 'secondary' }}">{{ ucfirst($payment->status) }}</span>
+                                        <span class="badge bg-{{ $paymentStatusColors[$payment->status->value] ?? 'secondary' }}">{{ ucfirst($payment->status->value) }}</span>
                                     </td>
                                     <td class="text-end fw-bold">AED {{ number_format($payment->amount, 2) }}</td>
                                 </tr>
@@ -172,7 +172,7 @@
                     <form action="{{ route('admin.bookings.update', $booking) }}" method="POST">
                         @csrf @method('PUT')
                         <div class="mb-3">
-                            <x-form.select name="status" :options="['pending'=>'Pending','confirmed'=>'Confirmed','cancelled'=>'Cancelled','refunded'=>'Refunded']" :selected="old('status', $booking->status)" />
+                            <x-form.select name="status" :options="['pending'=>'Pending','confirmed'=>'Confirmed','cancelled'=>'Cancelled','refunded'=>'Refunded']" :selected="old('status', $booking->status->value)" />
                         </div>
                         <button type="submit" class="btn btn-primary w-100"><i class='bx bx-check me-1'></i> Update Status</button>
                     </form>
@@ -180,7 +180,7 @@
             </div>
 
             {{-- Cash Payment --}}
-            @if(!in_array($booking->status, ['cancelled', 'refunded']) && !$booking->payments->where('status', 'completed')->count())
+            @if(!in_array($booking->status->value, ['cancelled', 'refunded']) && !$booking->payments->where('status', \App\Enums\PaymentStatus::Completed)->count())
             <div class="card mt-4 border-success">
                 <div class="card-header bg-success bg-opacity-10">
                     <h6 class="mb-0 text-success"><i class='bx bx-money me-1'></i> Record Cash Payment</h6>
@@ -207,7 +207,7 @@
             @endif
 
             {{-- Cancel Booking --}}
-            @if(!in_array($booking->status, ['cancelled', 'refunded']))
+            @if(!in_array($booking->status->value, ['cancelled', 'refunded']))
             <div class="card mt-4 border-danger">
                 <div class="card-header bg-danger bg-opacity-10">
                     <h6 class="mb-0 text-danger"><i class='bx bx-x-circle me-1'></i> Cancel Booking</h6>
@@ -224,7 +224,7 @@
     </div>
 
     {{-- Cancel Modal --}}
-    @if(!in_array($booking->status, ['cancelled', 'refunded']))
+    @if(!in_array($booking->status->value, ['cancelled', 'refunded']))
     <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">

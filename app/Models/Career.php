@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\JobType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -23,6 +24,7 @@ class Career extends Model
         return [
             'last_apply_date' => 'date',
             'is_active' => 'boolean',
+            'job_type' => JobType::class,
         ];
     }
 

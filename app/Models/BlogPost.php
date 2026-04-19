@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\BlogPostStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -28,6 +29,7 @@ class BlogPost extends Model
             'published_at' => 'datetime',
             'is_featured' => 'boolean',
             'is_active' => 'boolean',
+            'status' => BlogPostStatus::class,
         ];
     }
 
@@ -73,13 +75,13 @@ class BlogPost extends Model
 
     public function scopePublished($query)
     {
-        return $query->where('status', 'published')
+        return $query->where('status', BlogPostStatus::Published)
             ->where('is_active', true)
             ->where('published_at', '<=', now());
     }
 
     public function scopeDraft($query)
     {
-        return $query->where('status', 'draft');
+        return $query->where('status', BlogPostStatus::Draft);
     }
 }

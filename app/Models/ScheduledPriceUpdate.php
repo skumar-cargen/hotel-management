@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ScheduledUpdateStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -17,6 +18,7 @@ class ScheduledPriceUpdate extends Model
         return [
             'scheduled_at' => 'datetime',
             'executed_at' => 'datetime',
+            'status' => ScheduledUpdateStatus::class,
         ];
     }
 

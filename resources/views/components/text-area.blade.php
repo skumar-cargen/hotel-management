@@ -8,6 +8,7 @@
             <span class="text-danger">*</span>
         @endif
     </label>
+    {{-- Safe: browsers don't parse HTML inside textarea elements --}}
     <textarea class="form-control mb-3 tinymceExample" {{ $required ? 'required' : '' }} name="{{ $name }}" id="tinymceExample" rows="{{ $rows }}" {{ $required ? "required" : '' }}>{!! $value !!}</textarea>
     @error($name)
         <div class="text text-danger">{{ $message }}</div>

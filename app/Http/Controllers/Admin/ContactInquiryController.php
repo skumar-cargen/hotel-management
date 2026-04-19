@@ -27,7 +27,7 @@ class ContactInquiryController extends Controller
                 ->addColumn('domain_name', fn ($i) => $i->domain->name ?? '-')
                 ->addColumn('hotel_name', fn ($i) => $i->hotel->name ?? '-')
                 ->addColumn('status_badge', function ($i) {
-                    return match ($i->status) {
+                    return match ($i->status->value) {
                         'read' => '<span class="badge bg-info">Read</span>',
                         'replied' => '<span class="badge bg-success">Replied</span>',
                         default => '<span class="badge bg-warning">New</span>',

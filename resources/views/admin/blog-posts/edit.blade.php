@@ -192,6 +192,7 @@
                             </div>
                         </div>
 
+                        {{-- Safe: browsers don't parse HTML inside textarea elements --}}
                         <textarea name="content" id="content-editor" class="summernote-editor">{!! old('content', $post->content ?? '') !!}</textarea>
                         @error('content')<div class="text-danger mt-1" style="font-size:.78rem;">{{ $message }}</div>@enderror
                     </div>
@@ -284,7 +285,7 @@
                             </div>
                         </div>
 
-                        <x-form.select name="status" label="Status" :options="['draft' => 'Draft', 'published' => 'Published', 'archived' => 'Archived']" :selected="old('status', $post->status ?? 'draft')" :placeholder="false" required class="mb-3" />
+                        <x-form.select name="status" label="Status" :options="['draft' => 'Draft', 'published' => 'Published', 'archived' => 'Archived']" :selected="old('status', ($post->status ?? \App\Enums\BlogPostStatus::Draft)->value)" :placeholder="false" required class="mb-3" />
 
                         <div>
                             <label for="published_at" class="form-label">Publish Date</label>

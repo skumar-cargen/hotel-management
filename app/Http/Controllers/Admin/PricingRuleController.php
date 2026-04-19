@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\AdjustmentType;
+use App\Enums\PricingRuleType;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StorePricingRuleRequest;
+use App\Http\Requests\Admin\UpdatePricingRuleRequest;
 use App\Models\Domain;
 use App\Models\Hotel;
 use App\Models\Location;
@@ -20,24 +24,24 @@ class PricingRuleController extends Controller
             return DataTables::of($query)
                 ->addColumn('type_badge', function ($rule) {
                     $colors = [
-                        'domain_markup' => 'primary',
-                        'seasonal' => 'info',
-                        'date_range' => 'warning',
-                        'category' => 'secondary',
-                        'day_of_week' => 'dark',
+                        PricingRuleType::DomainMarkup->value => 'primary',
+                        PricingRuleType::Seasonal->value => 'info',
+                        PricingRuleType::DateRange->value => 'warning',
+                        PricingRuleType::Category->value => 'secondary',
+                        PricingRuleType::DayOfWeek->value => 'dark',
                     ];
                     $color = $colors[$rule->type] ?? 'secondary';
 
                     return '<span class="badge bg-'.$color.'">'.e(str_replace('_', ' ', ucfirst($rule->type))).'</span>';
                 })
                 ->addColumn('domain_name', function ($rule) {
-                    return $rule->domain->name ?? '-';
+                    return e($rule->domain->name ?? '-');
                 })
                 ->addColumn('hotel_name', function ($rule) {
-                    return $rule->hotel->name ?? '-';
+                    return e($rule->hotel->name ?? '-');
                 })
                 ->addColumn('adjustment', function ($rule) {
-                    if ($rule->adjustment_type === 'percentage') {
+                    if ($rule->adjustment_type === AdjustmentType::Percentage->value) {
                         $sign = $rule->adjustment_value >= 0 ? '+' : '';
 
                         return $sign.$rule->adjustment_value.'%';
@@ -78,22 +82,9 @@ class PricingRuleController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StorePricingRuleRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'type' => 'required|in:domain_markup,seasonal,date_range,category,day_of_week',
-            'domain_id' => 'nullable|exists:domains,id',
-            'hotel_id' => 'nullable|exists:hotels,id',
-            'room_type_id' => 'nullable|exists:room_types,id',
-            'location_id' => 'nullable|exists:locations,id',
-            'adjustment_type' => 'required|in:percentage,fixed_amount',
-            'adjustment_value' => 'required|numeric',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-            'days_of_week' => 'nullable|array',
-            'priority' => 'integer|min:0',
-        ]);
+        $validated = $request->validated();
 
         $validated['is_active'] = $request->boolean('is_active', true);
 
@@ -111,22 +102,9 @@ class PricingRuleController extends Controller
         return view('admin.pricing-rules.edit', compact('pricingRule', 'domains', 'hotels', 'locations'));
     }
 
-    public function update(Request $request, PricingRule $pricingRule)
+    public function update(UpdatePricingRuleRequest $request, PricingRule $pricingRule)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'type' => 'required|in:domain_markup,seasonal,date_range,category,day_of_week',
-            'domain_id' => 'nullable|exists:domains,id',
-            'hotel_id' => 'nullable|exists:hotels,id',
-            'room_type_id' => 'nullable|exists:room_types,id',
-            'location_id' => 'nullable|exists:locations,id',
-            'adjustment_type' => 'required|in:percentage,fixed_amount',
-            'adjustment_value' => 'required|numeric',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-            'days_of_week' => 'nullable|array',
-            'priority' => 'integer|min:0',
-        ]);
+        $validated = $request->validated();
 
         $validated['is_active'] = $request->boolean('is_active');
 

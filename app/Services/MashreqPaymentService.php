@@ -2,6 +2,10 @@
 
 namespace App\Services;
 
+use App\Enums\BookingStatus;
+use App\Enums\PaymentGateway;
+use App\Enums\PaymentMethod;
+use App\Enums\PaymentStatus;
 use App\Models\Booking;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Http;
@@ -10,6 +14,8 @@ use Illuminate\Support\Str;
 
 class MashreqPaymentService
 {
+    private const DEFAULT_CURRENCY = 'AED';
+
     protected string $merchantId;
 
     protected string $apiKey;
@@ -41,11 +47,11 @@ class MashreqPaymentService
         $payment = Payment::create([
             'booking_id' => $booking->id,
             'transaction_id' => $orderId,
-            'payment_method' => 'card',
-            'gateway' => 'mashreq',
+            'payment_method' => PaymentMethod::Card,
+            'gateway' => PaymentGateway::Mashreq,
             'amount' => $booking->total_amount,
-            'currency' => 'AED',
-            'status' => 'initiated',
+            'currency' => self::DEFAULT_CURRENCY,
+            'status' => PaymentStatus::Initiated,
         ]);
 
         if ($this->sandbox) {
@@ -69,7 +75,7 @@ class MashreqPaymentService
                 'merchant_id' => $this->merchantId,
                 'order_id' => $orderId,
                 'amount' => number_format($booking->total_amount, 2, '.', ''),
-                'currency' => 'AED',
+                'currency' => self::DEFAULT_CURRENCY,
                 'description' => "Booking {$booking->reference_number}",
                 'return_url' => route('api.payment.callback'),
                 'cancel_url' => config('app.frontend_url').'/booking/'.$booking->reference_number,
@@ -83,7 +89,7 @@ class MashreqPaymentService
             $data = $response->json();
 
             $payment->update([
-                'status' => 'processing',
+                'status' => PaymentStatus::Processing,
                 'gateway_response' => $data,
             ]);
 
@@ -96,7 +102,7 @@ class MashreqPaymentService
             }
 
             $payment->update([
-                'status' => 'failed',
+                'status' => PaymentStatus::Failed,
                 'failure_reason' => $data['message'] ?? 'Gateway error',
                 'failed_at' => now(),
             ]);
@@ -112,7 +118,7 @@ class MashreqPaymentService
             ]);
 
             $payment->update([
-                'status' => 'failed',
+                'status' => PaymentStatus::Failed,
                 'failure_reason' => $e->getMessage(),
                 'failed_at' => now(),
             ]);
@@ -135,7 +141,10 @@ class MashreqPaymentService
         $payment = Payment::where('transaction_id', $orderId)->first();
 
         if (! $payment) {
-            Log::warning('Payment callback for unknown order', $callbackData);
+            Log::warning('Payment callback for unknown order', [
+                'order_id' => $callbackData['order_id'] ?? 'unknown',
+                'status' => $callbackData['status'] ?? 'unknown',
+            ]);
 
             return ['success' => false, 'error' => 'Payment not found'];
         }
@@ -145,7 +154,7 @@ class MashreqPaymentService
         // Sandbox mode simulation
         if ($this->sandbox && ($callbackData['sandbox'] ?? false)) {
             $payment->update([
-                'status' => 'completed',
+                'status' => PaymentStatus::Completed,
                 'paid_at' => now(),
                 'gateway_response' => array_merge(
                     $payment->gateway_response ?? [],
@@ -154,7 +163,7 @@ class MashreqPaymentService
             ]);
 
             $booking->update([
-                'status' => 'paid',
+                'status' => BookingStatus::Paid,
                 'confirmed_at' => now(),
             ]);
 
@@ -170,7 +179,7 @@ class MashreqPaymentService
 
         if ($verified && $status === 'success') {
             $payment->update([
-                'status' => 'completed',
+                'status' => PaymentStatus::Completed,
                 'paid_at' => now(),
                 'gateway_response' => array_merge(
                     $payment->gateway_response ?? [],
@@ -179,7 +188,7 @@ class MashreqPaymentService
             ]);
 
             $booking->update([
-                'status' => 'paid',
+                'status' => BookingStatus::Paid,
                 'confirmed_at' => now(),
             ]);
 
@@ -191,7 +200,7 @@ class MashreqPaymentService
         }
 
         $payment->update([
-            'status' => 'failed',
+            'status' => PaymentStatus::Failed,
             'failed_at' => now(),
             'failure_reason' => $callbackData['message'] ?? 'Payment verification failed',
             'gateway_response' => array_merge(
@@ -244,13 +253,13 @@ class MashreqPaymentService
         if ($this->sandbox) {
             $refundTxnId = 'REF-'.Str::random(10);
             $payment->update([
-                'status' => $amount && $amount < $payment->amount ? 'partially_refunded' : 'refunded',
+                'status' => $amount && $amount < $payment->amount ? 'partially_refunded' : PaymentStatus::Refunded,
                 'refund_amount' => $refundAmount,
                 'refund_transaction_id' => $refundTxnId,
                 'refunded_at' => now(),
             ]);
 
-            $payment->booking->update(['status' => 'refunded']);
+            $payment->booking->update(['status' => BookingStatus::Refunded]);
 
             return ['success' => true, 'refund_transaction_id' => $refundTxnId];
         }
@@ -263,21 +272,21 @@ class MashreqPaymentService
                 'merchant_id' => $this->merchantId,
                 'transaction_id' => $payment->transaction_id,
                 'amount' => number_format($refundAmount, 2, '.', ''),
-                'currency' => 'AED',
+                'currency' => self::DEFAULT_CURRENCY,
             ]);
 
             $data = $response->json();
 
             if ($response->successful() && isset($data['refund_id'])) {
                 $payment->update([
-                    'status' => $amount && $amount < $payment->amount ? 'partially_refunded' : 'refunded',
+                    'status' => $amount && $amount < $payment->amount ? 'partially_refunded' : PaymentStatus::Refunded,
                     'refund_amount' => $refundAmount,
                     'refund_transaction_id' => $data['refund_id'],
                     'refunded_at' => now(),
                     'gateway_response' => array_merge($payment->gateway_response ?? [], ['refund' => $data]),
                 ]);
 
-                $payment->booking->update(['status' => 'refunded']);
+                $payment->booking->update(['status' => BookingStatus::Refunded]);
 
                 return ['success' => true, 'refund_transaction_id' => $data['refund_id']];
             }

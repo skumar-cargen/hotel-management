@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\ScheduledUpdateStatus;
 use App\Models\ScheduledPriceUpdate;
 use App\Observers\HotelObserver;
 use Carbon\Carbon;
@@ -15,7 +16,7 @@ class ExecuteScheduledPriceUpdates extends Command
 
     public function handle(): int
     {
-        $pending = ScheduledPriceUpdate::where('status', 'pending')
+        $pending = ScheduledPriceUpdate::where('status', ScheduledUpdateStatus::Pending)
             ->where('scheduled_at', '<=', Carbon::now())
             ->with(['roomType', 'hotel'])
             ->get();
@@ -33,12 +34,12 @@ class ExecuteScheduledPriceUpdates extends Command
             try {
                 $this->executeUpdate($update);
                 $update->update([
-                    'status' => 'executed',
+                    'status' => ScheduledUpdateStatus::Executed,
                     'executed_at' => Carbon::now(),
                 ]);
                 $executed++;
             } catch (\Throwable $e) {
-                $update->update(['status' => 'cancelled']);
+                $update->update(['status' => ScheduledUpdateStatus::Failed]);
                 $this->error("Failed to execute update #{$update->id}: {$e->getMessage()}");
                 $failed++;
             }

@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\DTOs\PriceBreakdown;
+use App\Enums\AdjustmentType;
+use App\Enums\PricingRuleType;
 use App\Models\Domain;
 use App\Models\Hotel;
 use App\Models\PricingRule;
@@ -16,18 +18,30 @@ class PricingService
     /**
      * UAE VAT percentage.
      */
-    protected float $vatPercentage = 5.0;
+    protected float $vatPercentage;
 
     /**
      * Tourism dirham fee per room per night.
      */
-    protected array $tourismFeeByStars = [
-        1 => 7,
-        2 => 10,
-        3 => 10,
-        4 => 15,
-        5 => 20,
-    ];
+    protected array $tourismFeeByStars;
+
+    /**
+     * Default tourism fee for unknown star ratings.
+     */
+    protected float $defaultTourismFee;
+
+    public function __construct()
+    {
+        $this->vatPercentage = (float) config('pricing.vat_percentage', 5.0);
+        $this->tourismFeeByStars = config('pricing.tourism_fee_by_stars', [
+            1 => 7,
+            2 => 10,
+            3 => 10,
+            4 => 15,
+            5 => 20,
+        ]);
+        $this->defaultTourismFee = (float) config('pricing.default_tourism_fee', 10);
+    }
 
     /**
      * Calculate the full price breakdown for a booking.
@@ -80,7 +94,7 @@ class PricingService
 
         // Tourism fee per room per night based on hotel star rating
         $starRating = $hotel->star_rating ?? 3;
-        $feePerRoomNight = $this->tourismFeeByStars[$starRating] ?? 10;
+        $feePerRoomNight = $this->tourismFeeByStars[$starRating] ?? $this->defaultTourismFee;
         $tourismFee = round($feePerRoomNight * $numRooms * $numNights, 2);
 
         $totalAmount = round($subtotal + $taxAmount + $tourismFee, 2);
@@ -131,24 +145,7 @@ class PricingService
         }
 
         // 2. Load applicable pricing rules ordered by priority
-        $rules = PricingRule::where('is_active', true)
-            ->where(function ($q) use ($roomType) {
-                $q->whereNull('room_type_id')->orWhere('room_type_id', $roomType->id);
-            })
-            ->where(function ($q) use ($hotel) {
-                $q->whereNull('hotel_id')->orWhere('hotel_id', $hotel->id);
-            })
-            ->where(function ($q) use ($hotel) {
-                $q->whereNull('location_id')->orWhere('location_id', $hotel->location_id);
-            })
-            ->where(function ($q) use ($domain) {
-                $q->whereNull('domain_id');
-                if ($domain) {
-                    $q->orWhere('domain_id', $domain->id);
-                }
-            })
-            ->orderBy('priority', 'desc')
-            ->get();
+        $rules = $this->getApplicableRules($roomType, $hotel, $domain);
 
         foreach ($rules as $rule) {
             if (! $this->ruleAppliesOnDate($rule, $date)) {
@@ -185,7 +182,7 @@ class PricingService
         }
 
         // Check day of week
-        if ($rule->type === 'day_of_week' && $rule->days_of_week) {
+        if ($rule->type === PricingRuleType::DayOfWeek && $rule->days_of_week) {
             $days = is_array($rule->days_of_week) ? $rule->days_of_week : json_decode($rule->days_of_week, true);
             if ($days && ! in_array($date->dayOfWeekIso, $days) && ! in_array(strtolower($date->format('l')), array_map('strtolower', $days))) {
                 return false;
@@ -201,8 +198,8 @@ class PricingService
     protected function applyRule(PricingRule $rule, float $currentPrice): float
     {
         return match ($rule->adjustment_type) {
-            'percentage' => $currentPrice * ($rule->adjustment_value / 100),
-            'fixed_amount' => (float) $rule->adjustment_value,
+            AdjustmentType::Percentage => $currentPrice * ($rule->adjustment_value / 100),
+            AdjustmentType::FixedAmount => (float) $rule->adjustment_value,
             default => 0,
         };
     }
@@ -228,8 +225,31 @@ class PricingService
             return round((float) $availability->price_override, 2);
         }
 
-        // Load all applicable pricing rules (same logic as getPriceForDate)
-        $rules = PricingRule::where('is_active', true)
+        // Load all applicable pricing rules
+        $rules = $this->getApplicableRules($roomType, $hotel, $domain);
+
+        $price = $basePrice;
+
+        foreach ($rules as $rule) {
+            if (! $this->ruleAppliesOnDate($rule, $today)) {
+                continue;
+            }
+
+            $adjustmentAmount = $this->applyRule($rule, $price);
+            if ($adjustmentAmount != 0) {
+                $price += $adjustmentAmount;
+            }
+        }
+
+        return round(max(0, $price), 2);
+    }
+
+    /**
+     * Get all applicable pricing rules for a room type, ordered by priority.
+     */
+    private function getApplicableRules(RoomType $roomType, Hotel $hotel, ?Domain $domain): \Illuminate\Database\Eloquent\Collection
+    {
+        return PricingRule::where('is_active', true)
             ->where(function ($q) use ($roomType) {
                 $q->whereNull('room_type_id')->orWhere('room_type_id', $roomType->id);
             })
@@ -247,20 +267,5 @@ class PricingService
             })
             ->orderBy('priority', 'desc')
             ->get();
-
-        $price = $basePrice;
-
-        foreach ($rules as $rule) {
-            if (! $this->ruleAppliesOnDate($rule, $today)) {
-                continue;
-            }
-
-            $adjustmentAmount = $this->applyRule($rule, $price);
-            if ($adjustmentAmount != 0) {
-                $price += $adjustmentAmount;
-            }
-        }
-
-        return round(max(0, $price), 2);
     }
 }

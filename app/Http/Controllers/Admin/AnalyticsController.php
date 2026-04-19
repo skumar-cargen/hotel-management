@@ -102,7 +102,7 @@ class AnalyticsController extends Controller
             ->groupBy('status')
             ->get()
             ->map(fn ($row) => [
-                'status' => ucfirst($row->status),
+                'status' => ucfirst($row->status instanceof \App\Enums\BookingStatus ? $row->status->value : $row->status),
                 'count' => (int) $row->count,
             ])
             ->values();

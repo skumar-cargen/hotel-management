@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\AdjustmentType;
+use App\Enums\PricingRuleType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -25,6 +27,8 @@ class PricingRule extends Model
             'end_date' => 'date',
             'days_of_week' => 'array',
             'is_active' => 'boolean',
+            'type' => PricingRuleType::class,
+            'adjustment_type' => AdjustmentType::class,
         ];
     }
 

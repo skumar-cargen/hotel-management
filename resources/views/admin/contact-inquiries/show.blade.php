@@ -24,9 +24,9 @@
             <div class="card detail-card">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <span><i class='bx bx-envelope me-2'></i>Message</span>
-                    @if($contactInquiry->status === 'read')
+                    @if($contactInquiry->status->value === 'read')
                         <span class="badge bg-info">Read</span>
-                    @elseif($contactInquiry->status === 'replied')
+                    @elseif($contactInquiry->status->value === 'replied')
                         <span class="badge bg-success">Replied</span>
                     @else
                         <span class="badge bg-warning">New</span>
@@ -79,9 +79,9 @@
                         @csrf
                         @method('PUT')
                         <select name="status" class="form-select form-select-sm mb-3">
-                            <option value="new" {{ $contactInquiry->status === 'new' ? 'selected' : '' }}>New</option>
-                            <option value="read" {{ $contactInquiry->status === 'read' ? 'selected' : '' }}>Read</option>
-                            <option value="replied" {{ $contactInquiry->status === 'replied' ? 'selected' : '' }}>Replied</option>
+                            <option value="new" {{ $contactInquiry->status->value === 'new' ? 'selected' : '' }}>New</option>
+                            <option value="read" {{ $contactInquiry->status->value === 'read' ? 'selected' : '' }}>Read</option>
+                            <option value="replied" {{ $contactInquiry->status->value === 'replied' ? 'selected' : '' }}>Replied</option>
                         </select>
                         <button type="submit" class="btn btn-sm btn-primary w-100">Update Status</button>
                     </form>

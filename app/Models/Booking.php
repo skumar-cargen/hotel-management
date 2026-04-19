@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\BookingStatus;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Booking extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'reference_number', 'domain_id', 'customer_id', 'hotel_id', 'room_type_id',
@@ -38,6 +40,7 @@ class Booking extends Model
             'cancelled_at' => 'datetime',
             'confirmed_at' => 'datetime',
             'booked_at' => 'datetime',
+            'status' => BookingStatus::class,
         ];
     }
 
@@ -78,16 +81,16 @@ class Booking extends Model
 
     public function scopePending($query)
     {
-        return $query->where('status', 'pending');
+        return $query->where('status', BookingStatus::Pending);
     }
 
     public function scopeConfirmed($query)
     {
-        return $query->where('status', 'confirmed');
+        return $query->where('status', BookingStatus::Confirmed);
     }
 
     public function scopePaid($query)
     {
-        return $query->where('status', 'paid');
+        return $query->where('status', BookingStatus::Paid);
     }
 }

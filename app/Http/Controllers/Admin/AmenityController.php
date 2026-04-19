@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreAmenityRequest;
+use App\Http\Requests\Admin\UpdateAmenityRequest;
 use App\Models\Amenity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -48,13 +50,9 @@ class AmenityController extends Controller
         return view('admin.amenities.edit', ['amenity' => new Amenity]);
     }
 
-    public function store(Request $request)
+    public function store(StoreAmenityRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'icon' => 'nullable|string|max:100',
-            'category' => 'nullable|string|max:100',
-        ]);
+        $validated = $request->validated();
 
         $validated['slug'] = Str::slug($validated['name']);
         $validated['is_active'] = $request->boolean('is_active', true);
@@ -69,13 +67,9 @@ class AmenityController extends Controller
         return view('admin.amenities.edit', compact('amenity'));
     }
 
-    public function update(Request $request, Amenity $amenity)
+    public function update(UpdateAmenityRequest $request, Amenity $amenity)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'icon' => 'nullable|string|max:100',
-            'category' => 'nullable|string|max:100',
-        ]);
+        $validated = $request->validated();
 
         $validated['slug'] = Str::slug($validated['name']);
         $validated['is_active'] = $request->boolean('is_active');

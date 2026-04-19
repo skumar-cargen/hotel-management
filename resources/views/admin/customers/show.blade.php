@@ -98,7 +98,7 @@
                                 @php
                                     $statusColors = ['pending' => 'warning', 'confirmed' => 'info', 'paid' => 'success', 'cancelled' => 'danger', 'refunded' => 'secondary', 'completed' => 'success'];
                                 @endphp
-                                <span class="badge bg-{{ $statusColors[$booking->status] ?? 'secondary' }}">{{ ucfirst($booking->status) }}</span>
+                                <span class="badge bg-{{ $statusColors[$booking->status->value] ?? 'secondary' }}">{{ ucfirst($booking->status->value) }}</span>
                             </div>
                             <div class="d-flex gap-3" style="font-size: .8rem; color: #64748b;">
                                 <span><i class='bx bx-calendar me-1'></i>{{ $booking->check_in_date?->format('M d') }} - {{ $booking->check_out_date?->format('M d, Y') }}</span>

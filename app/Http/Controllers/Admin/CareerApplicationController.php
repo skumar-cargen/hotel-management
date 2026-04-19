@@ -45,9 +45,9 @@ class CareerApplicationController extends Controller
                         'shortlisted' => 'success',
                         'rejected' => 'danger',
                     ];
-                    $color = $colors[$app->status] ?? 'secondary';
+                    $color = $colors[$app->status->value] ?? 'secondary';
 
-                    return '<span class="badge bg-'.$color.'">'.ucfirst($app->status).'</span>';
+                    return '<span class="badge bg-'.$color.'">'.ucfirst($app->status->value).'</span>';
                 })
                 ->addColumn('applied_at', function ($app) {
                     return '<span style="font-size:.82rem;">'.$app->created_at->format('M j, Y').'</span>'
