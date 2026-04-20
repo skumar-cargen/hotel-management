@@ -11,7 +11,7 @@ use App\Models\Booking;
 use App\Models\Customer;
 use App\Models\Hotel;
 use App\Models\RoomType;
-// use App\Services\MashreqPaymentService; // Temporarily disabled — Mashreq payment
+use App\Services\MashreqPaymentService;
 use App\Services\PricingService;
 use App\Traits\ApiResponses;
 use Carbon\Carbon;
@@ -25,7 +25,7 @@ class BookingController extends Controller
 
     public function __construct(
         protected PricingService $pricingService,
-        // protected MashreqPaymentService $paymentService, // Temporarily disabled — Mashreq payment
+        protected MashreqPaymentService $paymentService,
     ) {}
 
     public function store(CreateBookingRequest $request)
@@ -114,34 +114,33 @@ class BookingController extends Controller
         return $this->successResponse(new BookingSummaryResource($booking));
     }
 
-    // Temporarily disabled — Mashreq payment
-    // public function initiatePayment(string $reference)
-    // {
-    //     $domain = $this->domain();
-    //
-    //     $booking = Booking::where('reference_number', $reference)
-    //         ->where('domain_id', $domain->id)
-    //         ->first();
-    //
-    //     if (! $booking) {
-    //         return $this->errorResponse('Booking not found.', 404);
-    //     }
-    //
-    //     if ($booking->status !== BookingStatus::Pending) {
-    //         return $this->errorResponse('Booking is not in a payable state.', 422);
-    //     }
-    //
-    //     $result = $this->paymentService->initiatePayment($booking);
-    //
-    //     if (! $result['success']) {
-    //         return $this->errorResponse($result['error'] ?? 'Payment initiation failed.', 422);
-    //     }
-    //
-    //     return $this->successResponse([
-    //         'payment_id' => $result['payment_id'],
-    //         'redirect_url' => $result['redirect_url'],
-    //     ]);
-    // }
+    public function initiatePayment(string $reference)
+    {
+        $domain = $this->domain();
+
+        $booking = Booking::where('reference_number', $reference)
+            ->where('domain_id', $domain->id)
+            ->first();
+
+        if (! $booking) {
+            return $this->errorResponse('Booking not found.', 404);
+        }
+
+        if ($booking->status !== BookingStatus::Pending) {
+            return $this->errorResponse('Booking is not in a payable state.', 422);
+        }
+
+        $result = $this->paymentService->initiatePayment($booking);
+
+        if (! $result['success']) {
+            return $this->errorResponse($result['error'] ?? 'Payment initiation failed.', 422);
+        }
+
+        return $this->successResponse([
+            'payment_id' => $result['payment_id'],
+            'redirect_url' => $result['redirect_url'],
+        ]);
+    }
 
     public function confirmation(string $reference)
     {
