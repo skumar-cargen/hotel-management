@@ -21,6 +21,7 @@ class Domain extends Model
         'robots_txt', 'sitemap_enabled',
         'google_analytics_id', 'google_search_console_verification',
         'meta_pixel_id', 'google_tag_manager_id',
+        'smtp_host', 'smtp_port', 'smtp_username', 'smtp_password', 'smtp_encryption',
         'about_us', 'about_us_meta_title', 'about_us_meta_description', 'about_us_canonical_url',
         'privacy_policy', 'privacy_policy_meta_title', 'privacy_policy_meta_description', 'privacy_policy_canonical_url',
         'terms_conditions', 'terms_conditions_meta_title', 'terms_conditions_meta_description', 'terms_conditions_canonical_url',
@@ -32,6 +33,7 @@ class Domain extends Model
             'is_active' => 'boolean',
             'is_primary' => 'boolean',
             'sitemap_enabled' => 'boolean',
+            'smtp_password' => 'encrypted',
         ];
     }
 

@@ -15,7 +15,7 @@ use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\NewsletterController;
 use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\MpgsController;
-use App\Http\Controllers\Api\PaymentCallbackController;
+// use App\Http\Controllers\Api\PaymentCallbackController; // Temporarily disabled — Mashreq payment
 use App\Http\Controllers\Api\PricingController;
 use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\TestimonialController;
@@ -33,8 +33,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Payment callback — no domain middleware (gateway calls this)
-Route::post('payments/callback', [PaymentCallbackController::class, 'handle'])
-    ->name('api.payment.callback');
+// Temporarily disabled — Mashreq payment
+// Route::post('payments/callback', [PaymentCallbackController::class, 'handle'])
+//     ->name('api.payment.callback');
 
 // All domain-scoped routes
 Route::middleware(['resolve.domain.api', 'throttle:api'])->group(function () {
@@ -89,8 +90,9 @@ Route::middleware(['resolve.domain.api', 'throttle:api'])->group(function () {
     Route::post('bookings', [BookingController::class, 'store'])
         ->middleware('throttle:10,1');
     Route::get('bookings/{reference}', [BookingController::class, 'show']);
-    Route::post('bookings/{reference}/pay', [BookingController::class, 'initiatePayment'])
-        ->middleware('throttle:5,1');
+    // Temporarily disabled — Mashreq payment
+    // Route::post('bookings/{reference}/pay', [BookingController::class, 'initiatePayment'])
+    //     ->middleware('throttle:5,1');
     Route::get('bookings/{reference}/confirmation', [BookingController::class, 'confirmation']);
 
     // MPGS Payments

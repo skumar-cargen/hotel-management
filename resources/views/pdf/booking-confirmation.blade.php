@@ -5,454 +5,204 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Booking Confirmation - {{ $booking->reference_number ?? '' }}</title>
     <style>
-        /* DomPDF-compatible styles */
-        @page {
-            size: A4;
-            margin: 20mm 15mm 20mm 15mm;
-        }
+        @page { size: A4; margin: 12mm 14mm 12mm 14mm; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, Helvetica, sans-serif; font-size: 10px; color: #2d2d2d; line-height: 1.4; }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* ── Header ── */
+        .header { background-color: #0F1B2D; padding: 16px 22px 14px; }
+        .header td { vertical-align: middle; }
+        .brand { font-size: 18px; font-weight: 700; color: #fff; }
+        .brand-sub { font-size: 7px; color: #C8A97E; text-transform: uppercase; letter-spacing: 3px; margin-top: 1px; }
+        .doc-label { font-size: 8px; color: #C8A97E; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; text-align: right; }
+        .doc-date { font-size: 9px; color: #7A8EA0; text-align: right; margin-top: 2px; }
+        .gold-line { height: 2px; background: #C8A97E; }
 
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 12px;
-            color: #1a1d29;
-            line-height: 1.5;
-            background-color: #ffffff;
-        }
+        /* ── Reference bar ── */
+        .ref-bar { background: #F7F4EF; padding: 10px 22px; border-bottom: 1px solid #E8DFD1; }
+        .ref-bar td { vertical-align: middle; }
+        .ref-label { font-size: 7px; color: #8B7355; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; }
+        .ref-num { font-size: 17px; font-weight: 700; color: #0F1B2D; font-family: 'Courier New', monospace; letter-spacing: 2px; }
+        .status { display: inline-block; padding: 3px 10px; font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #0F1B2D; background: #E8DFD1; border: 1px solid #C8A97E; }
 
-        /* Header */
-        .header {
-            width: 100%;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 12px;
-            margin-bottom: 0;
-        }
+        /* ── Content ── */
+        .content { padding: 14px 22px 10px; }
+        .sec { margin-top: 12px; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid #E8DFD1; }
+        .sec-text { font-size: 8px; font-weight: 700; color: #C8A97E; text-transform: uppercase; letter-spacing: 2px; }
 
-        .header-table {
-            width: 100%;
-        }
+        /* ── Hotel card ── */
+        .hotel { background: #0F1B2D; padding: 12px 16px; }
+        .h-name { font-size: 14px; font-weight: 700; color: #fff; }
+        .h-stars { color: #C8A97E; font-size: 10px; font-weight: 600; margin-top: 1px; }
+        .h-addr { font-size: 9px; color: #7A8EA0; margin-top: 1px; }
+        .h-room { margin-top: 8px; padding-top: 7px; border-top: 1px solid #1E2D42; }
+        .h-room-label { font-size: 7px; color: #C8A97E; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+        .h-room-name { font-size: 11px; font-weight: 600; color: #fff; margin-top: 1px; }
 
-        .header-left {
-            text-align: left;
-            vertical-align: bottom;
-        }
+        /* ── Date cards ── */
+        .date-card { background: #F7F4EF; padding: 10px 12px; text-align: center; border: 1px solid #E8DFD1; }
+        .dc-label { font-size: 7px; color: #8B7355; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; }
+        .dc-val { font-size: 13px; font-weight: 700; color: #0F1B2D; margin-top: 2px; }
+        .dc-day { font-size: 8px; color: #8B7355; margin-top: 1px; }
 
-        .header-right {
-            text-align: right;
-            vertical-align: bottom;
-        }
+        /* ── Summary boxes ── */
+        .sum-box td { text-align: center; padding: 7px 6px; background: #FAFAF8; border: 1px solid #F0EDE8; }
+        .sb-val { font-size: 14px; font-weight: 700; color: #0F1B2D; }
+        .sb-lbl { font-size: 7px; color: #8B8B8B; text-transform: uppercase; letter-spacing: 1px; margin-top: 1px; }
 
-        .domain-name {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1a1d3a;
-        }
+        /* ── Guest table ── */
+        .g-table { width: 100%; border-collapse: collapse; }
+        .g-table td { padding: 4px 0; font-size: 10px; }
+        .g-label { color: #8B8B8B; width: 28%; }
+        .g-value { color: #1a1d29; font-weight: 600; }
 
-        .doc-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #667eea;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        /* ── Price table ── */
+        .p-table { width: 100%; border-collapse: collapse; }
+        .p-table td { padding: 6px 0; font-size: 10px; border-bottom: 1px solid #F3F0EC; }
+        .p-label { color: #6b7280; }
+        .p-value { text-align: right; color: #1a1d29; font-weight: 500; }
+        .p-total td { border-top: 2px solid #0F1B2D; border-bottom: none; padding-top: 8px; }
+        .p-total .p-label { font-size: 12px; font-weight: 700; color: #0F1B2D; }
+        .p-total .p-value { font-size: 15px; font-weight: 700; color: #C8A97E; }
 
-        .doc-date {
-            font-size: 11px;
-            color: #6b7280;
-            margin-top: 4px;
-        }
+        /* ── Special requests ── */
+        .special { background: #FDF9F0; border: 1px solid #E8DFD1; border-left: 3px solid #C8A97E; padding: 8px 12px; font-size: 10px; color: #5C4A2E; line-height: 1.6; margin-top: 6px; }
 
-        /* Reference bar */
-        .reference-bar {
-            background-color: #667eea;
-            color: #ffffff;
-            padding: 14px 20px;
-            margin: 16px 0;
-            text-align: center;
-        }
+        /* ── Notes ── */
+        .notes { margin-top: 12px; padding: 10px 14px; background: #F7F4EF; border: 1px solid #E8DFD1; }
+        .notes-title { font-size: 7px; font-weight: 700; color: #8B7355; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; }
+        .notes p { font-size: 8px; color: #6B6B6B; line-height: 1.6; margin-bottom: 1px; }
 
-        .reference-label {
-            font-size: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #c7d2fe;
-            margin-bottom: 4px;
-        }
-
-        .reference-number {
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: 3px;
-            font-family: 'Courier New', Courier, monospace;
-        }
-
-        /* Status badge */
-        .status-bar {
-            text-align: center;
-            margin-bottom: 16px;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 16px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border: 1px solid #e5e7eb;
-            color: #1a1d29;
-            background-color: #f3f4f6;
-        }
-
-        /* Section titles */
-        .section-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #1a1d29;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 8px 12px;
-            background-color: #f3f4f6;
-            border-left: 3px solid #667eea;
-            margin-bottom: 12px;
-            margin-top: 20px;
-        }
-
-        /* Info table */
-        .info-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 8px;
-        }
-
-        .info-table td {
-            padding: 6px 12px;
-            font-size: 12px;
-            vertical-align: top;
-        }
-
-        .info-label {
-            color: #6b7280;
-            width: 35%;
-            font-weight: 400;
-        }
-
-        .info-value {
-            color: #1a1d29;
-            font-weight: 500;
-        }
-
-        /* Two-column layout */
-        .two-col-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .two-col-table td {
-            width: 50%;
-            vertical-align: top;
-            padding: 0;
-        }
-
-        .two-col-table td:first-child {
-            padding-right: 10px;
-        }
-
-        .two-col-table td:last-child {
-            padding-left: 10px;
-        }
-
-        /* Price table */
-        .price-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 8px;
-        }
-
-        .price-table td {
-            padding: 8px 12px;
-            font-size: 12px;
-            border-bottom: 1px solid #f3f4f6;
-        }
-
-        .price-table .price-label {
-            color: #6b7280;
-            text-align: left;
-        }
-
-        .price-table .price-value {
-            color: #1a1d29;
-            text-align: right;
-            font-weight: 500;
-        }
-
-        .price-table .total-row td {
-            border-top: 2px solid #1a1d29;
-            border-bottom: none;
-            padding-top: 10px;
-            font-weight: 700;
-            font-size: 14px;
-        }
-
-        .price-table .total-row .price-value {
-            color: #667eea;
-            font-size: 16px;
-        }
-
-        /* Special requests */
-        .special-requests {
-            background-color: #fffbeb;
-            border: 1px solid #fde68a;
-            padding: 10px 14px;
-            font-size: 12px;
-            color: #92400e;
-            margin-top: 8px;
-            line-height: 1.6;
-        }
-
-        /* Terms section */
-        .terms {
-            margin-top: 24px;
-            padding-top: 12px;
-            border-top: 1px solid #e5e7eb;
-        }
-
-        .terms p {
-            font-size: 10px;
-            color: #9ca3af;
-            line-height: 1.6;
-            margin-bottom: 4px;
-        }
-
-        /* Footer */
-        .footer {
-            margin-top: 20px;
-            padding-top: 12px;
-            border-top: 2px solid #667eea;
-            text-align: center;
-        }
-
-        .footer p {
-            font-size: 10px;
-            color: #6b7280;
-            line-height: 1.6;
-            margin-bottom: 2px;
-        }
-
-        .footer .footer-domain {
-            font-size: 12px;
-            font-weight: 700;
-            color: #1a1d3a;
-        }
+        /* ── Footer ── */
+        .footer { margin-top: 12px; padding: 12px 22px; background: #0F1B2D; text-align: center; }
+        .footer p { font-size: 8px; color: #7A8EA0; line-height: 1.7; }
+        .f-brand { font-size: 10px; font-weight: 700; color: #C8A97E; letter-spacing: 1px; }
+        .f-div { width: 30px; height: 1px; background: #1E2D42; margin: 4px auto; }
     </style>
 </head>
 <body>
 
-    @php
-        $currency = $booking->currency ?? 'AED';
-        $domainName = $booking->domain?->name ?? 'Dubai Apartments';
-        $domainEmail = $booking->domain?->email ?? '';
-        $domainPhone = $booking->domain?->phone ?? '';
-        $domainAddress = $booking->domain?->address ?? '';
-    @endphp
+@php
+    $currency = $booking->currency ?? 'AED';
+    $dn = $booking->domain?->name ?? 'Abu Dhabi Hotels';
+    $de = $booking->domain?->email ?? '';
+    $dp = $booking->domain?->phone ?? '';
+    $da = $booking->domain?->address ?? '';
+@endphp
 
-    {{-- Header --}}
-    <div class="header">
-        <table class="header-table">
-            <tr>
-                <td class="header-left">
-                    <div class="domain-name">{{ $domainName }}</div>
-                </td>
-                <td class="header-right">
-                    <div class="doc-title">Booking Confirmation</div>
-                    <div class="doc-date">Date: {{ $booking->booked_at?->format('M d, Y') ?? $booking->created_at?->format('M d, Y') ?? now()->format('M d, Y') }}</div>
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    {{-- Booking Reference Bar --}}
-    <div class="reference-bar">
-        <div class="reference-label">Booking Reference</div>
-        <div class="reference-number">{{ $booking->reference_number ?? 'N/A' }}</div>
-    </div>
-
-    {{-- Status --}}
-    <div class="status-bar">
-        <span class="status-badge">
-            Status: {{ $booking->status?->label() ?? ($booking->status ?? 'Pending') }}
-        </span>
-    </div>
-
-    {{-- Guest Information --}}
-    <div class="section-title">Guest Information</div>
-    <table class="two-col-table">
+{{-- ═══ Header ═══ --}}
+<div class="header">
+    <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
-            <td>
-                <table class="info-table">
-                    <tr>
-                        <td class="info-label">Full Name</td>
-                        <td class="info-value">{{ $booking->guest_first_name ?? '' }} {{ $booking->guest_last_name ?? '' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="info-label">Email</td>
-                        <td class="info-value">{{ $booking->guest_email ?? 'N/A' }}</td>
-                    </tr>
-                </table>
-            </td>
-            <td>
-                <table class="info-table">
-                    <tr>
-                        <td class="info-label">Phone</td>
-                        <td class="info-value">{{ $booking->guest_phone ?? 'N/A' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="info-label">Nationality</td>
-                        <td class="info-value">{{ $booking->guest_nationality ?? 'N/A' }}</td>
-                    </tr>
-                </table>
-            </td>
+            <td><div class="brand">{{ $dn }}</div><div class="brand-sub">Premium Hotel Booking</div></td>
+            <td style="text-align: right;"><div class="doc-label">Booking Confirmation</div><div class="doc-date">{{ $booking->booked_at?->format('F d, Y') ?? now()->format('F d, Y') }}</div></td>
         </tr>
     </table>
+</div>
+<div class="gold-line"></div>
 
-    {{-- Hotel & Room Details --}}
-    <div class="section-title">Hotel &amp; Room Details</div>
-    <table class="info-table">
+{{-- ═══ Reference ═══ --}}
+<div class="ref-bar">
+    <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
-            <td class="info-label">Hotel</td>
-            <td class="info-value">{{ $booking->hotel?->name ?? 'N/A' }}</td>
+            <td><div class="ref-label">Booking Reference</div><div class="ref-num">{{ $booking->reference_number ?? 'N/A' }}</div></td>
+            <td style="text-align: right;"><span class="status">{{ $booking->status?->label() ?? ($booking->status ?? 'Pending') }}</span></td>
         </tr>
+    </table>
+</div>
+
+{{-- ═══ Content ═══ --}}
+<div class="content">
+
+    {{-- Hotel --}}
+    <div class="hotel">
+        <div class="h-name">{{ $booking->hotel?->name ?? 'N/A' }}</div>
         @if($booking->hotel?->star_rating)
-            <tr>
-                <td class="info-label">Star Rating</td>
-                <td class="info-value">{{ $booking->hotel->star_rating }}-Star Hotel</td>
-            </tr>
+            <div class="h-stars">@for($i = 0; $i < $booking->hotel->star_rating; $i++)&#9733; @endfor {{ $booking->hotel->star_rating }}-Star Hotel</div>
         @endif
-        <tr>
-            <td class="info-label">Room Type</td>
-            <td class="info-value">{{ $booking->roomType?->name ?? 'N/A' }}</td>
-        </tr>
-        @if($booking->hotel?->address)
-            <tr>
-                <td class="info-label">Address</td>
-                <td class="info-value">{{ $booking->hotel->address }}</td>
-            </tr>
-        @endif
-    </table>
+        @if($booking->hotel?->address)<div class="h-addr">{{ $booking->hotel->address }}</div>@endif
+        <div class="h-room">
+            <div class="h-room-label">Room Type</div>
+            <div class="h-room-name">{{ $booking->roomType?->name ?? 'N/A' }}</div>
+        </div>
+    </div>
 
-    {{-- Stay Details --}}
-    <div class="section-title">Stay Details</div>
-    <table class="two-col-table">
+    {{-- Stay --}}
+    <div class="sec"><div class="sec-text">Stay Details</div></div>
+
+    <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
-            <td>
-                <table class="info-table">
-                    <tr>
-                        <td class="info-label">Check-in</td>
-                        <td class="info-value">{{ $booking->check_in_date?->format('M d, Y') ?? 'N/A' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="info-label">Check-out</td>
-                        <td class="info-value">{{ $booking->check_out_date?->format('M d, Y') ?? 'N/A' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="info-label">Nights</td>
-                        <td class="info-value">{{ $booking->num_nights ?? 0 }}</td>
-                    </tr>
-                </table>
-            </td>
-            <td>
-                <table class="info-table">
-                    <tr>
-                        <td class="info-label">Rooms</td>
-                        <td class="info-value">{{ $booking->num_rooms ?? 1 }}</td>
-                    </tr>
-                    <tr>
-                        <td class="info-label">Adults</td>
-                        <td class="info-value">{{ $booking->num_adults ?? 0 }}</td>
-                    </tr>
-                    <tr>
-                        <td class="info-label">Children</td>
-                        <td class="info-value">{{ $booking->num_children ?? 0 }}</td>
-                    </tr>
-                </table>
-            </td>
+            <td width="48%"><div class="date-card"><div class="dc-label">Check-in</div><div class="dc-val">{{ $booking->check_in_date?->format('d M Y') ?? 'N/A' }}</div><div class="dc-day">{{ $booking->check_in_date?->format('l') ?? '' }}</div></div></td>
+            <td width="4%"></td>
+            <td width="48%"><div class="date-card"><div class="dc-label">Check-out</div><div class="dc-val">{{ $booking->check_out_date?->format('d M Y') ?? 'N/A' }}</div><div class="dc-day">{{ $booking->check_out_date?->format('l') ?? '' }}</div></div></td>
         </tr>
     </table>
 
-    {{-- Price Breakdown --}}
-    <div class="section-title">Price Breakdown</div>
-    <table class="price-table">
+    <table class="sum-box" width="100%" cellpadding="0" cellspacing="0" style="margin-top: 6px;">
         <tr>
-            <td class="price-label">Room Price / Night</td>
-            <td class="price-value">{{ $currency }} {{ number_format($booking->room_price_per_night ?? 0, 2) }}</td>
+            <td><div class="sb-val">{{ $booking->num_nights ?? 0 }}</div><div class="sb-lbl">{{ ($booking->num_nights ?? 0) === 1 ? 'Night' : 'Nights' }}</div></td>
+            <td><div class="sb-val">{{ $booking->num_rooms ?? 1 }}</div><div class="sb-lbl">{{ ($booking->num_rooms ?? 1) === 1 ? 'Room' : 'Rooms' }}</div></td>
+            <td><div class="sb-val">{{ $booking->num_adults ?? 0 }}</div><div class="sb-lbl">{{ ($booking->num_adults ?? 0) === 1 ? 'Adult' : 'Adults' }}</div></td>
+            <td><div class="sb-val">{{ $booking->num_children ?? 0 }}</div><div class="sb-lbl">{{ ($booking->num_children ?? 0) === 1 ? 'Child' : 'Children' }}</div></td>
         </tr>
+    </table>
+
+    {{-- Guest + Price side by side --}}
+    <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
-            <td class="price-label">Subtotal</td>
-            <td class="price-value">{{ $currency }} {{ number_format($booking->subtotal ?? 0, 2) }}</td>
-        </tr>
-        <tr>
-            <td class="price-label">Tax ({{ number_format($booking->tax_percentage ?? 0, 2) }}%)</td>
-            <td class="price-value">{{ $currency }} {{ number_format($booking->tax_amount ?? 0, 2) }}</td>
-        </tr>
-        @if(($booking->tourism_fee ?? 0) > 0)
-            <tr>
-                <td class="price-label">Tourism Fee</td>
-                <td class="price-value">{{ $currency }} {{ number_format($booking->tourism_fee, 2) }}</td>
-            </tr>
-        @endif
-        @if(($booking->service_charge ?? 0) > 0)
-            <tr>
-                <td class="price-label">Service Charge</td>
-                <td class="price-value">{{ $currency }} {{ number_format($booking->service_charge, 2) }}</td>
-            </tr>
-        @endif
-        <tr class="total-row">
-            <td class="price-label">Total Amount</td>
-            <td class="price-value">{{ $currency }} {{ number_format($booking->total_amount ?? 0, 2) }}</td>
+            <td width="48%" style="vertical-align: top;">
+                <div class="sec"><div class="sec-text">Guest Information</div></div>
+                <table class="g-table">
+                    <tr><td class="g-label">Name</td><td class="g-value">{{ $booking->guest_first_name ?? '' }} {{ $booking->guest_last_name ?? '' }}</td></tr>
+                    <tr><td class="g-label">Email</td><td class="g-value">{{ $booking->guest_email ?? 'N/A' }}</td></tr>
+                    <tr><td class="g-label">Phone</td><td class="g-value">{{ $booking->guest_phone ?? 'N/A' }}</td></tr>
+                    @if($booking->guest_nationality)<tr><td class="g-label">Nationality</td><td class="g-value">{{ $booking->guest_nationality }}</td></tr>@endif
+                </table>
+            </td>
+            <td width="4%"></td>
+            <td width="48%" style="vertical-align: top;">
+                <div class="sec"><div class="sec-text">Price Breakdown</div></div>
+                <table class="p-table">
+                    <tr><td class="p-label">Rate / Night</td><td class="p-value">{{ $currency }} {{ number_format($booking->room_price_per_night ?? 0, 2) }}</td></tr>
+                    <tr><td class="p-label">Subtotal</td><td class="p-value">{{ $currency }} {{ number_format($booking->subtotal ?? 0, 2) }}</td></tr>
+                    <tr><td class="p-label">Tax ({{ number_format($booking->tax_percentage ?? 0, 1) }}%)</td><td class="p-value">{{ $currency }} {{ number_format($booking->tax_amount ?? 0, 2) }}</td></tr>
+                    @if(($booking->tourism_fee ?? 0) > 0)
+                        <tr><td class="p-label">Tourism Fee</td><td class="p-value">{{ $currency }} {{ number_format($booking->tourism_fee, 2) }}</td></tr>
+                    @endif
+                    @if(($booking->service_charge ?? 0) > 0)
+                        <tr><td class="p-label">Service Charge</td><td class="p-value">{{ $currency }} {{ number_format($booking->service_charge, 2) }}</td></tr>
+                    @endif
+                    <tr class="p-total"><td class="p-label">Total</td><td class="p-value">{{ $currency }} {{ number_format($booking->total_amount ?? 0, 2) }}</td></tr>
+                </table>
+            </td>
         </tr>
     </table>
 
     {{-- Special Requests --}}
     @if(!empty($booking->special_requests))
-        <div class="section-title">Special Requests</div>
-        <div class="special-requests">
-            {{ $booking->special_requests }}
-        </div>
+        <div class="sec"><div class="sec-text">Special Requests</div></div>
+        <div class="special">{{ $booking->special_requests }}</div>
     @endif
 
-    {{-- Terms / Notes --}}
-    <div class="terms">
-        <p>This is a system-generated document. For any queries, please contact {{ $domainEmail ?: $domainName }}.</p>
-        <p>Please present this confirmation at the time of check-in along with a valid photo ID.</p>
-        <p>Check-in and check-out times are subject to hotel policy.</p>
+    {{-- Notes --}}
+    <div class="notes">
+        <div class="notes-title">Important Information</div>
+        <p>&#8226; Present this confirmation at check-in with a valid photo ID.</p>
+        <p>&#8226; Check-in and check-out times are subject to hotel policy.</p>
+        <p>&#8226; Cancellation policies vary by rate and room type.</p>
     </div>
+</div>
 
-    {{-- Footer --}}
-    <div class="footer">
-        <p class="footer-domain">{{ $domainName }}</p>
-        @if(!empty($domainAddress))
-            <p>{{ $domainAddress }}</p>
-        @endif
-        @if(!empty($domainPhone) || !empty($domainEmail))
-            <p>
-                @if(!empty($domainPhone))
-                    Phone: {{ $domainPhone }}
-                @endif
-                @if(!empty($domainPhone) && !empty($domainEmail))
-                    &nbsp;&bull;&nbsp;
-                @endif
-                @if(!empty($domainEmail))
-                    Email: {{ $domainEmail }}
-                @endif
-            </p>
-        @endif
-    </div>
+{{-- ═══ Footer ═══ --}}
+<div class="footer">
+    <p class="f-brand">{{ $dn }}</p>
+    <div class="f-div"></div>
+    @if(!empty($da))<p>{{ $da }}</p>@endif
+    @if(!empty($dp) || !empty($de))
+        <p>@if(!empty($dp))Phone: {{ $dp }}@endif @if(!empty($dp) && !empty($de)) | @endif @if(!empty($de))Email: {{ $de }}@endif</p>
+    @endif
+    <p style="margin-top: 3px; font-size: 7px; color: #556677;">&copy; {{ date('Y') }} {{ $dn }}. All rights reserved.</p>
+</div>
 
 </body>
 </html>
