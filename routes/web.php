@@ -92,6 +92,12 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     // Analytics
     Route::get('analytics', [Admin\AnalyticsController::class, 'index'])->name('analytics');
 
+    // Email Configuration / Settings
+    Route::middleware('can:manage settings')->group(function () {
+        Route::get('settings', [Admin\SettingController::class, 'index'])->name('settings.index');
+        Route::put('settings', [Admin\SettingController::class, 'update'])->name('settings.update');
+    });
+
     // Documentation
     Route::view('documentation', 'admin.documentation.index')->name('documentation');
 

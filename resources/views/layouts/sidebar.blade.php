@@ -159,6 +159,12 @@
                 <span class="nav-text">Analytics</span>
             </a>
             @endcan
+            @can('manage settings')
+            <a href="{{ route('admin.settings.index') }}" class="nav-item {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" data-tooltip="Email Configuration">
+                <div class="nav-icon"><i class='bx bx-cog'></i></div>
+                <span class="nav-text">Email Configuration</span>
+            </a>
+            @endcan
         </div>
 
         {{-- Documentation --}}

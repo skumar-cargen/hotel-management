@@ -95,6 +95,11 @@ class DomainController extends Controller
 
         $validated['is_active'] = $request->boolean('is_active');
 
+        // Empty SMTP password = keep existing (don't overwrite the encrypted value)
+        if (empty($validated['smtp_password'] ?? null)) {
+            unset($validated['smtp_password']);
+        }
+
         if ($request->hasFile('logo')) {
             if ($domain->logo_path) {
                 Storage::disk('public')->delete($domain->logo_path);

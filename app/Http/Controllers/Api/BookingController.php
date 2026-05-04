@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\CreateBookingRequest;
 use App\Http\Resources\BookingConfirmationResource;
 use App\Http\Resources\BookingSummaryResource;
+use App\Jobs\SendBookingCancelledEmails;
 use App\Models\Booking;
 use App\Models\Customer;
 use App\Models\Hotel;
@@ -161,6 +162,7 @@ class BookingController extends Controller
     public function cancel(string $reference)
     {
         $domain = $this->domain();
+        $request = request();
 
         $booking = Booking::where('reference_number', $reference)
             ->where('domain_id', $domain->id)
@@ -170,24 +172,63 @@ class BookingController extends Controller
             return $this->errorResponse('Booking not found.', 404);
         }
 
-        $guestEmail = request()->input('guest_email');
-        if (! $guestEmail || $guestEmail !== $booking->guest_email) {
-            return $this->errorResponse('Email verification failed.', 403);
+        // Authorize: logged-in customer matching booking.customer_id, OR
+        // guest_email param matching booking.guest_email
+        $authorized = false;
+
+        if ($bearerToken = $request->bearerToken()) {
+            $accessToken = PersonalAccessToken::findToken($bearerToken);
+            if ($accessToken
+                && $accessToken->tokenable instanceof Customer
+                && $accessToken->tokenable->is_active
+                && $accessToken->tokenable->id === $booking->customer_id) {
+                $authorized = true;
+            }
         }
 
-        if (! in_array($booking->status, [BookingStatus::Pending, BookingStatus::Confirmed])) {
+        if (! $authorized) {
+            $guestEmail = $request->input('guest_email');
+            if ($guestEmail && strcasecmp($guestEmail, $booking->guest_email) === 0) {
+                $authorized = true;
+            }
+        }
+
+        if (! $authorized) {
+            return $this->errorResponse('Not authorized to cancel this booking.', 403);
+        }
+
+        if (in_array($booking->status, [BookingStatus::Cancelled, BookingStatus::Refunded])) {
+            return $this->errorResponse('This booking has already been cancelled.', 422);
+        }
+
+        if (! in_array($booking->status, [BookingStatus::Pending, BookingStatus::Confirmed, BookingStatus::Paid])) {
             return $this->errorResponse('This booking cannot be cancelled.', 422);
+        }
+
+        // Booking must start AFTER today (cannot cancel on or after the check-in day)
+        if (! $booking->check_in_date || ! $booking->check_in_date->isAfter(now()->startOfDay())) {
+            return $this->errorResponse(
+                'Bookings can only be cancelled before the check-in date. Please contact support for assistance.',
+                422
+            );
         }
 
         $booking->update([
             'status' => BookingStatus::Cancelled,
-            'cancellation_reason' => request()->input('cancellation_reason'),
+            'cancellation_reason' => $request->input('cancellation_reason'),
             'cancelled_at' => now(),
         ]);
 
+        // Notify customer + admin via the domain's own SMTP. Refund/payment
+        // settlement is handled manually by admin from the admin panel.
+        $booking->load(['hotel', 'roomType', 'payments']);
+        SendBookingCancelledEmails::dispatch($booking, $domain);
+
         return $this->successResponse([
-            'message' => 'Booking has been cancelled successfully.',
+            'message' => 'Booking has been cancelled successfully. A confirmation email has been sent.',
             'reference_number' => $booking->reference_number,
+            'status' => BookingStatus::Cancelled->value,
+            'cancelled_at' => $booking->cancelled_at?->toIso8601String(),
         ]);
     }
 }

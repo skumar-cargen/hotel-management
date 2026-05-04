@@ -43,6 +43,11 @@ class UpdateDomainRequest extends FormRequest
             'terms_conditions_meta_title' => 'nullable|string|max:255',
             'terms_conditions_meta_description' => 'nullable|string|max:500',
             'terms_conditions_canonical_url' => 'nullable|url|max:255',
+            'smtp_host' => 'nullable|string|max:255',
+            'smtp_port' => 'nullable|integer|min:1|max:65535',
+            'smtp_username' => 'nullable|string|max:255',
+            'smtp_password' => 'nullable|string|max:255',
+            'smtp_encryption' => 'nullable|in:tls,ssl',
         ];
     }
 }

@@ -363,6 +363,77 @@
                 </div>
             </div>
 
+            {{-- Email Configuration (SMTP) --}}
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body p-4">
+                        <div class="section-header">
+                            <div class="sh-icon" style="background: rgba(255,138,0,0.12); color: #ff8a00;">
+                                <i class='bx bx-envelope'></i>
+                            </div>
+                            <div>
+                                <h6>Email Configuration (SMTP)</h6>
+                                <p>Outgoing mail credentials for this domain. If empty, the system falls back to the global <code>.env</code> SMTP. When set, all transactional emails for this domain (registration, bookings, etc.) will be sent from these credentials so the From address matches and avoids "Sender address rejected" errors.</p>
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                            <x-form.input
+                                name="smtp_host"
+                                label="SMTP Host"
+                                :value="old('smtp_host', $domain->smtp_host ?? '')"
+                                placeholder="smtp.hostinger.com"
+                                class="col-md-6" />
+
+                            <x-form.input
+                                type="number"
+                                name="smtp_port"
+                                label="SMTP Port"
+                                :value="old('smtp_port', $domain->smtp_port ?? '')"
+                                placeholder="587"
+                                class="col-md-3" />
+
+                            <x-form.select
+                                name="smtp_encryption"
+                                label="Encryption"
+                                :options="[
+                                    '' => 'None',
+                                    'tls' => 'TLS',
+                                    'ssl' => 'SSL',
+                                ]"
+                                :selected="old('smtp_encryption', $domain->smtp_encryption ?? 'tls')"
+                                class="col-md-3" />
+
+                            <x-form.input
+                                name="smtp_username"
+                                label="SMTP Username (mailbox)"
+                                :value="old('smtp_username', $domain->smtp_username ?? '')"
+                                placeholder="info@yourdomain.com"
+                                class="col-md-6" />
+
+                            <div class="col-md-6">
+                                <label for="smtp_password" class="form-label">SMTP Password</label>
+                                <input
+                                    type="password"
+                                    name="smtp_password"
+                                    id="smtp_password"
+                                    class="form-control"
+                                    autocomplete="new-password"
+                                    placeholder="{{ ($isEdit && $domain->smtp_password) ? '•••••••• (leave blank to keep current)' : 'Mailbox password' }}" />
+                                @error('smtp_password')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info mt-3 mb-0" style="font-size: 0.8rem;">
+                            <i class='bx bx-info-circle me-1'></i>
+                            Make sure the <strong>SMTP Username</strong> matches (or is allowed to send as) this domain's <strong>email</strong>
+                            ({{ $domain->email ?? 'not set yet' }}). Most providers (Hostinger, Gmail, etc.) reject mismatched From addresses with a <code>553 Sender address rejected</code> error.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- Content Pages --}}
             <div class="col-12">
                 <div class="card">

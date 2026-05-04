@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\CustomerLoginRequest;
 use App\Http\Requests\Api\CustomerRegisterRequest;
+use App\Jobs\SendNewCustomerRegisteredEmail;
 use App\Models\Customer;
 use App\Traits\ApiResponses;
 use Illuminate\Http\Request;
@@ -32,6 +33,13 @@ class CustomerAuthController extends Controller
             'last_login_at' => now(),
             'last_login_ip' => $request->ip(),
         ]);
+
+        SendNewCustomerRegisteredEmail::dispatch(
+            $customer,
+            $request->attributes->get('domain'),
+            'email',
+            $request->ip(),
+        );
 
         $token = $customer->createToken('customer-api')->plainTextToken;
 
@@ -106,6 +114,13 @@ class CustomerAuthController extends Controller
                 'avatar' => $googleUser->getAvatar(),
                 'email_verified_at' => now(),
             ]);
+
+            SendNewCustomerRegisteredEmail::dispatch(
+                $customer,
+                $request->attributes->get('domain'),
+                'google',
+                $request->ip(),
+            );
         }
 
         $customer->update([
